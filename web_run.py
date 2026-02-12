@@ -41,82 +41,257 @@ PAGE = """
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>Bin-Xray Web</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; background: #f7f7f8; color: #1f2937; }
-    .card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 16px; border: 1px solid #e5e7eb; }
-    label { display: block; font-weight: 600; margin-top: 10px; }
-    input[type=text], input[type=number] { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    button { margin-top: 14px; padding: 10px 14px; border: 0; border-radius: 6px; background: #2563eb; color: white; cursor: pointer; }
-    .error { color: #b91c1c; font-weight: 600; }
-    pre { background: #111827; color: #e5e7eb; padding: 12px; border-radius: 6px; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; }
-    td, th { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-    th { background: #f3f4f6; }
+        :root {
+            --bg: #0b1020;
+            --bg-soft: #131a2f;
+            --card: #ffffff;
+            --muted: #64748b;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --brand: #2563eb;
+            --brand-2: #1d4ed8;
+            --ok: #059669;
+            --bad: #b91c1c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background: radial-gradient(1200px 500px at 20% -10%, #1e3a8a 0%, var(--bg) 55%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 24px 16px 36px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #111827, #1e293b);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+        }
+        .hero h2 { margin: 0 0 6px; font-size: 22px; }
+        .hero p { margin: 0; color: #cbd5e1; }
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+        }
+        .section-title {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #1e293b;
+        }
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .field-full { grid-column: 1 / -1; }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        .hint {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        input[type=text], input[type=number], input[type=file] {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 11px;
+            background: #fff;
+            color: #0f172a;
+        }
+        input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            color: #334155;
+            font-size: 14px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 14px;
+        }
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+        }
+        button:hover { filter: brightness(1.06); }
+        .error {
+            color: var(--bad);
+            font-weight: 600;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .metric {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            background: #f8fafc;
+        }
+        .metric .k { font-size: 12px; color: var(--muted); }
+        .metric .v { font-size: 18px; font-weight: 700; margin-top: 4px; }
+        .score { color: var(--ok); }
+        .info-note {
+            margin: 10px 0 14px;
+            padding: 10px 12px;
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            border-radius: 10px;
+            color: #1e3a8a;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            border: 1px solid #1e293b;
+        }
+        table { border-collapse: collapse; width: 100%; }
+        td, th {
+            border: 1px solid #e5e7eb;
+            padding: 9px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th { background: #f8fafc; }
+        @media (max-width: 900px) {
+            .metrics { grid-template-columns: 1fr 1fr; }
+            .field-grid, .row { grid-template-columns: 1fr; }
+        }
   </style>
 </head>
 <body>
-  <div class=\"card\">
-    <h2>Bin-Xray Web</h2>
-    <p>Same analysis engine, browser-based interface.</p>
-    <form method=\"post\" action=\"/analyze\" enctype=\"multipart/form-data\"> 
-      <label>Binary Path</label>
-      <input type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
-
-      <label>Or choose Binary File</label>
-      <input type=\"file\" name=\"binary_file\" />
-
-      <label>Map File Path</label>
-      <input type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
-
-      <label>Or choose Map File</label>
-      <input type=\"file\" name=\"map_file\" />
-
-      <label>Library Directory</label>
-      <input type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
-
-      <div class=\"row\">
-        <div>
-          <label>SDK Tools Directory (optional)</label>
-          <input type=\"text\" name=\"sdk_tools\" value=\"{{ form.sdk_tools }}\" />
+    <div class=\"wrap\">
+        <div class=\"hero\">
+            <h2>Bin-Xray Web Dashboard</h2>
+            <p>Modern browser UI powered by the same dependency analysis engine.</p>
         </div>
-        <div>
-          <label>Depth</label>
-          <input type=\"number\" min=\"1\" max=\"20\" name=\"depth\" value=\"{{ form.depth }}\" />
+
+        <div class=\"card\">
+            <h3 class=\"section-title\">Analysis Inputs</h3>
+            <form method=\"post\" action=\"/analyze\" enctype=\"multipart/form-data\">
+                <div class=\"field-grid\">
+                    <div class=\"field-full\">
+                        <label>Binary Path</label>
+                        <input type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
+                        <div class=\"hint\">Use path input or upload a file below.</div>
+                    </div>
+
+                    <div>
+                        <label>Upload Binary</label>
+                        <input type=\"file\" name=\"binary_file\" />
+                    </div>
+
+                    <div>
+                        <label>Upload Map File</label>
+                        <input type=\"file\" name=\"map_file\" />
+                    </div>
+
+                    <div class=\"field-full\">
+                        <label>Map File Path</label>
+                        <input type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
+                    </div>
+
+                    <div class=\"field-full\">
+                        <label>Library Directory</label>
+                        <input type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
+                    </div>
+
+                    <div>
+                        <label>SDK Tools Directory (optional)</label>
+                        <input type=\"text\" name=\"sdk_tools\" value=\"{{ form.sdk_tools }}\" />
+                    </div>
+
+                    <div>
+                        <label>Depth</label>
+                        <input type=\"number\" min=\"1\" max=\"20\" name=\"depth\" value=\"{{ form.depth }}\" />
+                    </div>
+                </div>
+
+                <label class=\"toggle\">
+                    <input type=\"checkbox\" name=\"show_symbols\" {% if form.show_symbols %}checked{% endif %} />
+                    Show symbol dependencies
+                </label>
+
+                <div class=\"actions\">
+                    <button type=\"submit\">Analyze Dependency Graph</button>
+                </div>
+            </form>
         </div>
-      </div>
-
-      <label>
-        <input type=\"checkbox\" name=\"show_symbols\" {% if form.show_symbols %}checked{% endif %} /> Show symbol dependencies
-      </label>
-
-      <button type=\"submit\">Analyze</button>
-    </form>
-  </div>
 
   {% if error %}
-  <div class=\"card\"><div class=\"error\">{{ error }}</div></div>
+        <div class=\"card\"><div class=\"error\">{{ error }}</div></div>
   {% endif %}
 
   {% if result %}
-  <div class=\"card\">
-    <h3>Summary</h3>
-    <table>
-      <tr><th>Metric</th><th>Value</th></tr>
-      <tr><td>Nodes</td><td>{{ result.nodes }}</td></tr>
-      <tr><td>Edges</td><td>{{ result.edges }}</td></tr>
-      <tr><td>Build Score</td><td>{{ result.score }} / 100 ({{ result.grade }})</td></tr>
-      <tr><td>Used Objects</td><td>{{ result.details.used_objects }} / {{ result.details.total_built_objects }}</td></tr>
-      <tr><td>Used Libraries</td><td>{{ result.details.used_libraries }} / {{ result.details.total_built_libraries }}</td></tr>
-      <tr><td>Unused Objects</td><td>{{ result.details.unused_objects }}</td></tr>
-      <tr><td>Unused Libraries</td><td>{{ result.details.unused_libraries }}</td></tr>
-    </table>
-  </div>
+        <div class=\"card\">
+            <h3 class=\"section-title\">Summary</h3>
+            <div class=\"metrics\">
+                <div class=\"metric\"><div class=\"k\">Nodes</div><div class=\"v\">{{ result.nodes }}</div></div>
+                <div class=\"metric\"><div class=\"k\">Edges</div><div class=\"v\">{{ result.edges }}</div></div>
+                <div class=\"metric\"><div class=\"k\">Build Score</div><div class=\"v score\">{{ result.score }}</div></div>
+                <div class=\"metric\"><div class=\"k\">Grade</div><div class=\"v\">{{ result.grade }}</div></div>
+            </div>
+            <div class=\"info-note\">
+                <strong>Info:</strong> <strong>Nodes</strong> are components found in analysis (binary, libraries, object files). <strong>Edges</strong> are dependency links between them (for example, binary → library or object → object symbol references).
+            </div>
+            <table>
+                <tr><th>Metric</th><th>Value</th></tr>
+                <tr><td>Used Objects</td><td>{{ result.details.used_objects }} / {{ result.details.total_built_objects }}</td></tr>
+                <tr><td>Used Libraries</td><td>{{ result.details.used_libraries }} / {{ result.details.total_built_libraries }}</td></tr>
+                <tr><td>Unused Objects</td><td>{{ result.details.unused_objects }}</td></tr>
+                <tr><td>Unused Libraries</td><td>{{ result.details.unused_libraries }}</td></tr>
+            </table>
+        </div>
 
-  <div class=\"card\">
-    <h3>Unused Components</h3>
-    <pre>{{ result.unused_text }}</pre>
-  </div>
+        <div class=\"card\">
+            <h3 class=\"section-title\">Unused Components</h3>
+            <pre>{{ result.unused_text }}</pre>
+        </div>
   {% endif %}
+    </div>
 </body>
 </html>
 """

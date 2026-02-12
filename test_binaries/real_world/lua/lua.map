@@ -1,0 +1,1276 @@
+Archive member included to satisfy reference by file (symbol)
+
+liblua.a(lapi.o)              luac.o (lua_checkstack)
+liblua.a(ldebug.o)            luac.o (luaG_getfuncline)
+liblua.a(ldo.o)               liblua.a(lapi.o) (luaD_throw)
+liblua.a(ldump.o)             luac.o (luaU_dump)
+liblua.a(lfunc.o)             liblua.a(lapi.o) (luaF_newCclosure)
+liblua.a(lgc.o)               liblua.a(lapi.o) (luaC_barrier_)
+liblua.a(lmem.o)              liblua.a(ldo.o) (luaM_free_)
+liblua.a(lobject.o)           liblua.a(lapi.o) (luaO_arith)
+liblua.a(lopcodes.o)          liblua.a(ldebug.o) (luaP_opmodes)
+liblua.a(lparser.o)           liblua.a(ldo.o) (luaY_parser)
+liblua.a(lstate.o)            liblua.a(lapi.o) (luaE_setdebt)
+liblua.a(lstring.o)           liblua.a(lstate.o) (luaS_hash)
+liblua.a(ltable.o)            liblua.a(lgc.o) (luaH_realasize)
+liblua.a(ltm.o)               liblua.a(lstate.o) (luaT_init)
+liblua.a(lundump.o)           liblua.a(ldo.o) (luaU_undump)
+liblua.a(lvm.o)               liblua.a(lapi.o) (luaV_tonumber_)
+liblua.a(lzio.o)              liblua.a(ldo.o) (luaZ_fill)
+liblua.a(lauxlib.o)           luac.o (luaL_loadfilex)
+liblua.a(lcode.o)             liblua.a(lparser.o) (luaK_semerror)
+liblua.a(lctype.o)            liblua.a(lobject.o) (luai_ctype_)
+liblua.a(llex.o)              liblua.a(lstate.o) (luaX_init)
+
+Merging program properties
+
+
+As-needed library included to satisfy reference by file (symbol)
+
+libm.so.6                     liblua.a(ltable.o) (frexp@@GLIBC_2.2.5)
+libc.so.6                     liblua.a(lauxlib.o) (stdin@@GLIBC_2.2.5)
+
+Discarded input sections
+
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .note.gnu.property
+                0x0000000000000000       0x20 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x20 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 luac.o
+ .note.gnu.property
+                0x0000000000000000       0x20 luac.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lapi.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lapi.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(ldebug.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(ldebug.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(ldo.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(ldo.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(ldump.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(ldump.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lfunc.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lfunc.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lgc.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lgc.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lmem.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lmem.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lobject.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lobject.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lopcodes.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lopcodes.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lparser.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lparser.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lstate.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lstate.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lstring.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lstring.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(ltable.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(ltable.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(ltm.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(ltm.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lundump.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lundump.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lvm.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lvm.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lzio.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lzio.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lauxlib.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lauxlib.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lcode.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lcode.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(lctype.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(lctype.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 liblua.a(llex.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 liblua.a(llex.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x20 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x20 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+LOAD luac.o
+LOAD liblua.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libm.so
+START GROUP
+LOAD /lib/x86_64-linux-gnu/libm.so.6
+LOAD /lib/x86_64-linux-gnu/libmvec.so.1
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libdl.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libc.so
+START GROUP
+LOAD /lib/x86_64-linux-gnu/libc.so.6
+LOAD /usr/lib/x86_64-linux-gnu/libc_nonshared.a
+LOAD /lib64/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+                [!provide]                        PROVIDE (__executable_start = SEGMENT_START ("text-segment", 0x0))
+                0x0000000000000318                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.interp         0x0000000000000318       0x1c
+ *(.interp)
+ .interp        0x0000000000000318       0x1c /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.note.gnu.property
+                0x0000000000000338       0x30
+ .note.gnu.property
+                0x0000000000000338       0x30 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.note.gnu.build-id
+                0x0000000000000368       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x0000000000000368       0x24 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.note.ABI-tag   0x000000000000038c       0x20
+ .note.ABI-tag  0x000000000000038c       0x20 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000003b0      0x50c
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000003b0      0x50c /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.dynsym         0x00000000000008c0     0x1338
+ *(.dynsym)
+ .dynsym        0x00000000000008c0     0x1338 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.dynstr         0x0000000000001bf8      0xa5e
+ *(.dynstr)
+ .dynstr        0x0000000000001bf8      0xa5e /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.gnu.version    0x0000000000002656      0x19a
+ *(.gnu.version)
+ .gnu.version   0x0000000000002656      0x19a /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.gnu.version_d  0x00000000000027f0        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x00000000000027f0        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.gnu.version_r  0x00000000000027f0       0xc0
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x00000000000027f0       0xc0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.rela.dyn       0x00000000000028b0     0x1818
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x00000000000028b0        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.ro
+                0x00000000000028b0        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .rela.data.rel.local
+                0x00000000000028b0       0x48 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .rela.data.rel.ro.local
+                0x00000000000028f8     0x16e0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x0000000000003fd8       0x78 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ .rela.bss      0x0000000000004050       0x48 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x0000000000004098        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .rela.fini_array
+                0x0000000000004098       0x18 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .rela.init_array
+                0x00000000000040b0       0x18 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.rela.plt       0x00000000000040c8      0x420
+ *(.rela.plt)
+ .rela.plt      0x00000000000040c8      0x420 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000005000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000005000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000005000       0x16 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+                0x0000000000005000                _init
+ .init          0x0000000000005016        0x5 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+
+.plt            0x0000000000005020      0x2d0
+ *(.plt)
+ .plt           0x0000000000005020      0x2d0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.iplt)
+
+.plt.got        0x00000000000052f0       0x10
+ *(.plt.got)
+ .plt.got       0x00000000000052f0       0x10 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x00000000000052f0                __cxa_finalize@@GLIBC_2.2.5
+
+.plt.sec        0x0000000000005300      0x2c0
+ *(.plt.sec)
+ .plt.sec       0x0000000000005300      0x2c0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000005300                __snprintf_chk@@GLIBC_2.3.4
+                0x0000000000005310                free@@GLIBC_2.2.5
+                0x0000000000005320                putchar@@GLIBC_2.2.5
+                0x0000000000005330                abort@@GLIBC_2.2.5
+                0x0000000000005340                __errno_location@@GLIBC_2.2.5
+                0x0000000000005350                puts@@GLIBC_2.2.5
+                0x0000000000005360                ferror@@GLIBC_2.2.5
+                0x0000000000005370                fread@@GLIBC_2.2.5
+                0x0000000000005380                strtod@@GLIBC_2.2.5
+                0x0000000000005390                localeconv@@GLIBC_2.2.5
+                0x00000000000053a0                pow@@GLIBC_2.29
+                0x00000000000053b0                fclose@@GLIBC_2.2.5
+                0x00000000000053c0                strlen@@GLIBC_2.2.5
+                0x00000000000053d0                __stack_chk_fail@@GLIBC_2.4
+                0x00000000000053e0                strchr@@GLIBC_2.2.5
+                0x00000000000053f0                fputs@@GLIBC_2.2.5
+                0x0000000000005400                memset@@GLIBC_2.2.5
+                0x0000000000005410                strspn@@GLIBC_2.2.5
+                0x0000000000005420                fputc@@GLIBC_2.2.5
+                0x0000000000005430                memcmp@@GLIBC_2.2.5
+                0x0000000000005440                frexp@@GLIBC_2.2.5
+                0x0000000000005450                _setjmp@@GLIBC_2.2.5
+                0x0000000000005460                strcmp@@GLIBC_2.2.5
+                0x0000000000005470                feof@@GLIBC_2.2.5
+                0x0000000000005480                fopen64@@GLIBC_2.2.5
+                0x0000000000005490                freopen64@@GLIBC_2.2.5
+                0x00000000000054a0                memcpy@@GLIBC_2.14
+                0x00000000000054b0                time@@GLIBC_2.2.5
+                0x00000000000054c0                fflush@@GLIBC_2.2.5
+                0x00000000000054d0                strcoll@@GLIBC_2.2.5
+                0x00000000000054e0                strpbrk@@GLIBC_2.2.5
+                0x00000000000054f0                fmod@@GLIBC_2.38
+                0x0000000000005500                realloc@@GLIBC_2.2.5
+                0x0000000000005510                __printf_chk@@GLIBC_2.3.4
+                0x0000000000005520                __longjmp_chk@@GLIBC_2.11
+                0x0000000000005530                memmove@@GLIBC_2.2.5
+                0x0000000000005540                exit@@GLIBC_2.2.5
+                0x0000000000005550                fwrite@@GLIBC_2.2.5
+                0x0000000000005560                __fprintf_chk@@GLIBC_2.3.4
+                0x0000000000005570                strerror@@GLIBC_2.2.5
+                0x0000000000005580                getc@@GLIBC_2.2.5
+                0x0000000000005590                strstr@@GLIBC_2.2.5
+                0x00000000000055a0                __ctype_b_loc@@GLIBC_2.3
+                0x00000000000055b0                __sprintf_chk@@GLIBC_2.3.4
+
+.text           0x00000000000055c0    0x20d36
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ .text.unlikely
+                0x00000000000055c0        0x5 liblua.a(ldo.o)
+ .text.unlikely
+                0x00000000000055c5       0x2f liblua.a(lgc.o)
+ .text.unlikely
+                0x00000000000055f4        0xb liblua.a(lparser.o)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *fill*         0x00000000000055ff        0x1 
+ .text.startup  0x0000000000005600      0x2dd luac.o
+                0x0000000000005600                main
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ *fill*         0x00000000000058dd        0x3 
+ .text          0x00000000000058e0       0x26 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x00000000000058e0                _start
+ .text          0x0000000000005906        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+ *fill*         0x0000000000005906        0xa 
+ .text          0x0000000000005910       0xb9 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ *fill*         0x00000000000059c9        0x7 
+ .text          0x00000000000059d0     0x16fc luac.o
+ *fill*         0x00000000000070cc        0x4 
+ .text          0x00000000000070d0     0x32a9 liblua.a(lapi.o)
+                0x0000000000007230                lua_checkstack
+                0x0000000000007290                lua_xmove
+                0x0000000000007320                lua_atpanic
+                0x0000000000007340                lua_version
+                0x0000000000007350                lua_absindex
+                0x0000000000007380                lua_gettop
+                0x00000000000073a0                lua_settop
+                0x0000000000007450                lua_closeslot
+                0x0000000000007490                lua_rotate
+                0x0000000000007590                lua_copy
+                0x0000000000007740                lua_pushvalue
+                0x00000000000077f0                lua_type
+                0x00000000000078a0                lua_typename
+                0x00000000000078c0                lua_iscfunction
+                0x0000000000007960                lua_isinteger
+                0x0000000000007a00                lua_isnumber
+                0x0000000000007ae0                lua_isstring
+                0x0000000000007b80                lua_isuserdata
+                0x0000000000007c20                lua_rawequal
+                0x0000000000007c80                lua_arith
+                0x0000000000007cd0                lua_compare
+                0x0000000000007d70                lua_stringtonumber
+                0x0000000000007d90                lua_tonumberx
+                0x0000000000007ea0                lua_tointegerx
+                0x0000000000007fb0                lua_toboolean
+                0x0000000000008050                lua_tolstring
+                0x0000000000008180                lua_rawlen
+                0x0000000000008260                lua_tocfunction
+                0x0000000000008320                lua_touserdata
+                0x00000000000083f0                lua_tothread
+                0x0000000000008490                lua_topointer
+                0x00000000000085a0                lua_pushnil
+                0x00000000000085c0                lua_pushnumber
+                0x00000000000085e0                lua_pushinteger
+                0x0000000000008600                lua_pushlstring
+                0x0000000000008670                lua_pushstring
+                0x00000000000086e0                lua_pushvfstring
+                0x0000000000008720                lua_pushfstring
+                0x0000000000008800                lua_pushcclosure
+                0x00000000000088b0                lua_pushboolean
+                0x00000000000088d0                lua_pushlightuserdata
+                0x00000000000088f0                lua_pushthread
+                0x0000000000008920                lua_getglobal
+                0x00000000000089e0                lua_gettable
+                0x0000000000008a70                lua_getfield
+                0x0000000000008b20                lua_geti
+                0x0000000000008c10                lua_rawget
+                0x0000000000008c70                lua_rawgeti
+                0x0000000000008cd0                lua_rawgetp
+                0x0000000000008d50                lua_createtable
+                0x0000000000008dc0                lua_getmetatable
+                0x0000000000008ec0                lua_getiuservalue
+                0x0000000000008fb0                lua_setglobal
+                0x0000000000008fd0                lua_settable
+                0x0000000000009070                lua_setfield
+                0x0000000000009100                lua_seti
+                0x0000000000009210                lua_rawset
+                0x0000000000009290                lua_rawsetp
+                0x0000000000009330                lua_rawseti
+                0x00000000000093a0                lua_setmetatable
+                0x0000000000009490                lua_setiuservalue
+                0x00000000000095b0                lua_callk
+                0x0000000000009640                lua_pcallk
+                0x0000000000009790                lua_load
+                0x0000000000009880                lua_dump
+                0x00000000000098c0                lua_status
+                0x00000000000098d0                lua_gc
+                0x0000000000009c90                lua_error
+                0x0000000000009cd0                lua_next
+                0x0000000000009d90                lua_toclose
+                0x0000000000009df0                lua_concat
+                0x0000000000009e60                lua_len
+                0x0000000000009f00                lua_getallocf
+                0x0000000000009f20                lua_setallocf
+                0x0000000000009f30                lua_setwarnf
+                0x0000000000009f50                lua_warning
+                0x0000000000009f60                lua_newuserdatauv
+                0x0000000000009fc0                lua_getupvalue
+                0x000000000000a110                lua_setupvalue
+                0x000000000000a1e0                lua_upvalueid
+                0x000000000000a2f0                lua_upvaluejoin
+ *fill*         0x000000000000a379        0x7 
+ .text          0x000000000000a380     0x160f liblua.a(ldebug.o)
+                0x000000000000aa30                luaG_getfuncline
+                0x000000000000aad0                lua_sethook
+                0x000000000000ab60                lua_gethook
+                0x000000000000ab70                lua_gethookmask
+                0x000000000000ab80                lua_gethookcount
+                0x000000000000ab90                lua_getstack
+                0x000000000000abf0                luaG_findlocal
+                0x000000000000ace0                lua_getlocal
+                0x000000000000ada0                lua_setlocal
+                0x000000000000ae20                lua_getinfo
+                0x000000000000b2b0                luaG_addinfo
+                0x000000000000b360                luaG_errormsg
+                0x000000000000b3d0                luaG_runerror
+                0x000000000000b500                luaG_typeerror
+                0x000000000000b550                luaG_concaterror
+                0x000000000000b580                luaG_opinterror
+                0x000000000000b5b0                luaG_forerror
+                0x000000000000b5e0                luaG_tointerror
+                0x000000000000b640                luaG_ordererror
+                0x000000000000b6a0                luaG_callerror
+                0x000000000000b730                luaG_traceexec
+ *fill*         0x000000000000b98f        0x1 
+ .text          0x000000000000b990     0x1a42 liblua.a(ldo.o)
+                0x000000000000ba00                luaD_seterrorobj
+                0x000000000000bad0                luaD_throw
+                0x000000000000bc60                luaD_rawrunprotected
+                0x000000000000bd20                luaD_reallocstack
+                0x000000000000be70                luaD_growstack
+                0x000000000000bf10                luaD_shrinkstack
+                0x000000000000bfd0                luaD_inctop
+                0x000000000000c020                luaD_hook
+                0x000000000000c250                luaD_hookcall
+                0x000000000000c2b0                luaD_tryfuncTM
+                0x000000000000c370                luaD_poscall
+                0x000000000000c6b0                luaD_pretailcall
+                0x000000000000c960                luaD_precall
+                0x000000000000cd20                luaD_call
+                0x000000000000cdd0                luaD_callnoyield
+                0x000000000000ce80                lua_resume
+                0x000000000000d080                lua_isyieldable
+                0x000000000000d0a0                lua_yieldk
+                0x000000000000d120                luaD_closeprotected
+                0x000000000000d1c0                luaD_pcall
+                0x000000000000d2a0                luaD_protectedparser
+ *fill*         0x000000000000d3d2        0xe 
+ .text          0x000000000000d3e0      0x7c1 liblua.a(ldump.o)
+                0x000000000000d9c0                luaU_dump
+ *fill*         0x000000000000dba1        0xf 
+ .text          0x000000000000dbb0      0x5c8 liblua.a(lfunc.o)
+                0x000000000000dbb0                luaF_newCclosure
+                0x000000000000dbd0                luaF_newLclosure
+                0x000000000000dc30                luaF_initupvals
+                0x000000000000dcc0                luaF_findupval
+                0x000000000000dd60                luaF_newtbcupval
+                0x000000000000de30                luaF_unlinkupval
+                0x000000000000de50                luaF_closeupval
+                0x000000000000dee0                luaF_close
+                0x000000000000e030                luaF_newproto
+                0x000000000000e080                luaF_freeproto
+                0x000000000000e130                luaF_getlocalname
+ *fill*         0x000000000000e178        0x8 
+ .text          0x000000000000e180     0x2b1a liblua.a(lgc.o)
+                0x0000000000010040                luaC_barrier_
+                0x00000000000100b0                luaC_barrierback_
+                0x0000000000010160                luaC_fix
+                0x0000000000010190                luaC_newobjdt
+                0x00000000000101d0                luaC_newobj
+                0x0000000000010210                luaC_checkfinalizer
+                0x00000000000103f0                luaC_changemode
+                0x0000000000010440                luaC_freeallobjects
+                0x0000000000010500                luaC_runtilstate
+                0x0000000000010540                luaC_step
+                0x0000000000010b60                luaC_fullgc
+ *fill*         0x0000000000010c9a        0x6 
+ .text          0x0000000000010ca0      0x2da liblua.a(lmem.o)
+                0x0000000000010d00                luaM_toobig
+                0x0000000000010d20                luaM_free_
+                0x0000000000010d50                luaM_realloc_
+                0x0000000000010db0                luaM_shrinkvector_
+                0x0000000000010e10                luaM_growaux_
+                0x0000000000010ec0                luaM_saferealloc_
+                0x0000000000010f00                luaM_malloc_
+ *fill*         0x0000000000010f7a        0x6 
+ .text          0x0000000000010f80     0x127f liblua.a(lobject.o)
+                0x0000000000011330                luaO_ceillog2
+                0x0000000000011370                luaO_rawarith
+                0x0000000000011520                luaO_arith
+                0x0000000000011570                luaO_hexavalue
+                0x00000000000115a0                luaO_str2num
+                0x00000000000118f0                luaO_utf8esc
+                0x0000000000011960                luaO_tostring
+                0x00000000000119d0                luaO_pushvfstring
+                0x0000000000011f50                luaO_pushfstring
+                0x0000000000012010                luaO_chunkid
+ .text          0x00000000000121ff        0x0 liblua.a(lopcodes.o)
+ *fill*         0x00000000000121ff        0x1 
+ .text          0x0000000000012200     0x3dc6 liblua.a(lparser.o)
+                0x0000000000015cf0                luaY_nvarstack
+                0x0000000000015d40                luaY_parser
+ *fill*         0x0000000000015fc6        0xa 
+ .text          0x0000000000015fd0      0xa55 liblua.a(lstate.o)
+                0x00000000000161d0                lua_newstate
+                0x0000000000016460                luaE_setdebt
+                0x0000000000016490                lua_setcstacklimit
+                0x00000000000164a0                luaE_extendCI
+                0x00000000000164e0                luaE_freeCI
+                0x0000000000016530                luaE_shrinkCI
+                0x0000000000016590                luaE_checkcstack
+                0x00000000000165d0                luaE_incCstack
+                0x0000000000016630                lua_newthread
+                0x0000000000016740                luaE_freethread
+                0x00000000000167f0                luaE_resetthread
+                0x0000000000016890                lua_closethread
+                0x00000000000168c0                lua_resetthread
+                0x00000000000168e0                lua_close
+                0x0000000000016900                luaE_warning
+                0x0000000000016930                luaE_warnerror
+ *fill*         0x0000000000016a25        0xb 
+ .text          0x0000000000016a30      0x76d liblua.a(lstring.o)
+                0x0000000000016ab0                luaS_eqlngstr
+                0x0000000000016af0                luaS_hash
+                0x0000000000016b20                luaS_hashlongstr
+                0x0000000000016b70                luaS_resize
+                0x0000000000016df0                luaS_clearcache
+                0x0000000000016e40                luaS_init
+                0x0000000000016f00                luaS_createlngstrobj
+                0x0000000000016f40                luaS_remove
+                0x0000000000016f90                luaS_newlstr
+                0x0000000000017020                luaS_new
+                0x00000000000170d0                luaS_newudata
+ *fill*         0x000000000001719d        0x3 
+ .text          0x00000000000171a0     0x148e liblua.a(ltable.o)
+                0x0000000000017470                luaH_realasize
+                0x00000000000174b0                luaH_next
+                0x0000000000017620                luaH_new
+                0x0000000000017670                luaH_free
+                0x00000000000176e0                luaH_getint
+                0x00000000000177b0                luaH_getshortstr
+                0x0000000000017800                luaH_getstr
+                0x00000000000178b0                luaH_get
+                0x00000000000179f0                luaH_newkey
+                0x0000000000017ef0                luaH_resize
+                0x00000000000182d0                luaH_resizearray
+                0x00000000000182f0                luaH_finishset
+                0x0000000000018320                luaH_set
+                0x0000000000018390                luaH_setint
+                0x0000000000018410                luaH_getn
+ *fill*         0x000000000001862e        0x2 
+ .text          0x0000000000018630      0x869 liblua.a(ltm.o)
+                0x0000000000018630                luaT_init
+                0x00000000000186a0                luaT_gettm
+                0x00000000000186e0                luaT_gettmbyobj
+                0x0000000000018740                luaT_objtypename
+                0x00000000000187d0                luaT_callTM
+                0x0000000000018840                luaT_callTMres
+                0x00000000000189a0                luaT_trybinTM
+                0x0000000000018a40                luaT_tryconcatTM
+                0x0000000000018a90                luaT_trybinassocTM
+                0x0000000000018ac0                luaT_trybiniTM
+                0x0000000000018b30                luaT_callorderTM
+                0x0000000000018bf0                luaT_callorderiTM
+                0x0000000000018c70                luaT_adjustvarargs
+                0x0000000000018d70                luaT_getvarargs
+ *fill*         0x0000000000018e99        0x7 
+ .text          0x0000000000018ea0      0xad6 liblua.a(lundump.o)
+                0x00000000000196e0                luaU_undump
+ *fill*         0x0000000000019976        0xa 
+ .text          0x0000000000019980     0x5931 liblua.a(lvm.o)
+                0x0000000000019da0                luaV_tonumber_
+                0x0000000000019e60                luaV_flttointeger
+                0x0000000000019f20                luaV_tointegerns
+                0x000000000001a000                luaV_tointeger
+                0x000000000001a470                luaV_finishget
+                0x000000000001a5c0                luaV_finishset
+                0x000000000001a7a0                luaV_lessthan
+                0x000000000001aa00                luaV_lessequal
+                0x000000000001ac60                luaV_equalobj
+                0x000000000001afa0                luaV_concat
+                0x000000000001afb0                luaV_objlen
+                0x000000000001b0d0                luaV_idiv
+                0x000000000001b120                luaV_mod
+                0x000000000001b170                luaV_modf
+                0x000000000001b210                luaV_shiftl
+                0x000000000001b250                luaV_finishOp
+                0x000000000001b3f0                luaV_execute
+ *fill*         0x000000000001f2b1        0xf 
+ .text          0x000000000001f2c0      0x131 liblua.a(lzio.o)
+                0x000000000001f2c0                luaZ_fill
+                0x000000000001f330                luaZ_init
+                0x000000000001f350                luaZ_read
+ *fill*         0x000000000001f3f1        0xf 
+ .text          0x000000000001f400     0x26e0 liblua.a(lauxlib.o)
+                0x000000000001fb10                luaL_where
+                0x000000000001fbb0                luaL_error
+                0x000000000001fca0                luaL_argerror
+                0x000000000001fdd0                luaL_typeerror
+                0x000000000001fe70                luaL_fileresult
+                0x000000000001ff20                luaL_execresult
+                0x0000000000020010                luaL_newmetatable
+                0x00000000000200a0                luaL_setmetatable
+                0x00000000000200d0                luaL_testudata
+                0x0000000000020160                luaL_checkudata
+                0x00000000000201c0                luaL_checkoption
+                0x0000000000020290                luaL_checkstack
+                0x00000000000202f0                luaL_checktype
+                0x0000000000020330                luaL_checkany
+                0x0000000000020370                luaL_checklstring
+                0x00000000000203c0                luaL_optlstring
+                0x0000000000020450                luaL_checknumber
+                0x00000000000204d0                luaL_optnumber
+                0x0000000000020570                luaL_checkinteger
+                0x0000000000020620                luaL_optinteger
+                0x0000000000020660                luaL_pushresult
+                0x00000000000206c0                luaL_pushresultsize
+                0x00000000000206d0                luaL_buffinit
+                0x00000000000206f0                luaL_ref
+                0x00000000000207f0                luaL_unref
+                0x0000000000020850                luaL_loadfilex
+                0x0000000000020b00                luaL_loadbufferx
+                0x0000000000020b50                luaL_loadstring
+                0x0000000000020bc0                luaL_getmetafield
+                0x0000000000020c00                luaL_callmeta
+                0x0000000000020c70                luaL_len
+                0x0000000000020d00                luaL_tolstring
+                0x0000000000020f70                luaL_setfuncs
+                0x00000000000211b0                luaL_prepbuffsize
+                0x00000000000211c0                luaL_addstring
+                0x0000000000021210                luaL_addvalue
+                0x00000000000212a0                luaL_traceback
+                0x0000000000021660                luaL_buffinitsize
+                0x00000000000216b0                luaL_addlstring
+                0x0000000000021700                luaL_getsubtable
+                0x0000000000021770                luaL_requiref
+                0x0000000000021880                luaL_addgsub
+                0x0000000000021960                luaL_gsub
+                0x0000000000021a10                luaL_newstate
+                0x0000000000021a60                luaL_checkversion_
+ .text          0x0000000000021ae0     0x2e92 liblua.a(lcode.o)
+                0x0000000000022540                luaK_semerror
+                0x0000000000022560                luaK_exp2const
+                0x0000000000022650                luaK_concat
+                0x00000000000226e0                luaK_getlabel
+                0x00000000000226f0                luaK_patchlist
+                0x0000000000022710                luaK_patchtohere
+                0x0000000000022730                luaK_code
+                0x00000000000227b0                luaK_jump
+                0x00000000000227c0                luaK_nil
+                0x0000000000022870                luaK_ret
+                0x00000000000228f0                luaK_codeABCk
+                0x0000000000022920                luaK_codeABx
+                0x0000000000022940                luaK_codeAsBx
+                0x0000000000022960                luaK_checkstack
+                0x00000000000229a0                luaK_reserveregs
+                0x00000000000229e0                luaK_int
+                0x0000000000022a80                luaK_setreturns
+                0x0000000000022b10                luaK_setoneret
+                0x0000000000022b60                luaK_dischargevars
+                0x0000000000023270                luaK_exp2nextreg
+                0x0000000000023300                luaK_exp2anyreg
+                0x00000000000233e0                luaK_exp2anyregup
+                0x0000000000023410                luaK_exp2val
+                0x0000000000023430                luaK_exp2RK
+                0x0000000000023470                luaK_storevar
+                0x00000000000235c0                luaK_self
+                0x0000000000023690                luaK_goiftrue
+                0x0000000000023740                luaK_goiffalse
+                0x00000000000237c0                luaK_isKint
+                0x00000000000237e0                luaK_indexed
+                0x0000000000023990                luaK_infix
+                0x0000000000023b00                luaK_fixline
+                0x0000000000023b50                luaK_prefix
+                0x0000000000023fc0                luaK_posfix
+                0x0000000000024780                luaK_settablesize
+                0x0000000000024800                luaK_setlist
+                0x0000000000024880                luaK_finish
+ .text          0x0000000000024972        0x0 liblua.a(lctype.o)
+ *fill*         0x0000000000024972        0xe 
+ .text          0x0000000000024980     0x1976 liblua.a(llex.o)
+                0x0000000000024980                luaX_init
+                0x0000000000024a00                luaX_token2str
+                0x00000000000250c0                luaX_syntaxerror
+                0x00000000000250e0                luaX_newstring
+                0x0000000000026210                luaX_setinput
+                0x00000000000262a0                luaX_next
+                0x00000000000262e0                luaX_lookahead
+ .text          0x00000000000262f6        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ .text          0x00000000000262f6        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+ *(.gnu.warning)
+
+.fini           0x00000000000262f8        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x00000000000262f8        0x8 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+                0x00000000000262f8                _fini
+ .fini          0x0000000000026300        0x5 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000027000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000027000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000027000     0x2ba8
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.cst4   0x0000000000027000        0x4 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000027000                _IO_stdin_used
+ .rodata.str1.1
+                0x0000000000027004      0xcbe luac.o
+                                        0x427 (size before relaxing)
+ *fill*         0x0000000000027cc2        0x6 
+ .rodata.str1.8
+                0x0000000000027cc8      0x739 luac.o
+                                        0x237 (size before relaxing)
+ *fill*         0x0000000000028401        0x3 
+ .rodata        0x0000000000028404      0x264 luac.o
+ .rodata.str1.1
+                0x0000000000028668        0xd liblua.a(lapi.o)
+ *fill*         0x0000000000028668       0x18 
+ .rodata        0x0000000000028680       0xc1 liblua.a(lapi.o)
+                0x00000000000286c0                lua_ident
+ *fill*         0x0000000000028741        0x7 
+ .rodata.cst8   0x0000000000028748       0x60 liblua.a(lapi.o)
+                                          0x8 (size before relaxing)
+ .rodata.str1.1
+                0x00000000000287a8       0xf8 liblua.a(ldebug.o)
+ .rodata        0x00000000000287a8      0x1ac liblua.a(ldebug.o)
+ .rodata.str1.8
+                0x0000000000028954       0x71 liblua.a(ldebug.o)
+ .rodata.str1.1
+                0x0000000000028954       0x61 liblua.a(ldo.o)
+ .rodata.str1.8
+                0x0000000000028954       0xb2 liblua.a(ldo.o)
+ .rodata.str1.1
+                0x0000000000028954        0xc liblua.a(ldump.o)
+ .rodata.cst8   0x0000000000028954        0x8 liblua.a(ldump.o)
+ .rodata.str1.1
+                0x0000000000028954        0x2 liblua.a(lfunc.o)
+ .rodata.str1.8
+                0x0000000000028954       0x27 liblua.a(lfunc.o)
+ .rodata        0x0000000000028954      0x473 liblua.a(lgc.o)
+ .rodata.str1.1
+                0x0000000000028dc7        0x5 liblua.a(lgc.o)
+ .rodata.str1.8
+                0x0000000000028dc7       0x27 liblua.a(lmem.o)
+ .rodata.str1.1
+                0x0000000000028dc7       0x1a liblua.a(lmem.o)
+ *fill*         0x0000000000028dc7       0x19 
+ .rodata        0x0000000000028de0      0x220 liblua.a(lobject.o)
+ .rodata.str1.1
+                0x0000000000029000       0x29 liblua.a(lobject.o)
+ .rodata.str1.8
+                0x0000000000029000       0x2b liblua.a(lobject.o)
+ .rodata.cst8   0x0000000000029000       0x20 liblua.a(lobject.o)
+ .rodata.cst16  0x0000000000029000       0x40 liblua.a(lobject.o)
+                                         0x10 (size before relaxing)
+ .rodata        0x0000000000029040       0x53 liblua.a(lopcodes.o)
+                0x0000000000029040                luaP_opmodes
+ .rodata.str1.1
+                0x0000000000029093      0x13a liblua.a(lparser.o)
+ .rodata.str1.8
+                0x0000000000029093      0x163 liblua.a(lparser.o)
+ *fill*         0x0000000000029093        0xd 
+ .rodata        0x00000000000290a0      0x2aa liblua.a(lparser.o)
+ .rodata.cst8   0x000000000002934a        0x8 liblua.a(lparser.o)
+ .rodata.str1.1
+                0x000000000002934a       0x3d liblua.a(lstate.o)
+ .rodata.cst16  0x000000000002934a       0x10 liblua.a(lstate.o)
+ .rodata.cst8   0x000000000002934a        0x8 liblua.a(lstate.o)
+ .rodata.str1.1
+                0x000000000002934a       0x12 liblua.a(lstring.o)
+ *fill*         0x000000000002934a        0x6 
+ .rodata        0x0000000000029350       0xd8 liblua.a(ltable.o)
+ .rodata.str1.1
+                0x0000000000029428       0x4b liblua.a(ltable.o)
+ .rodata.cst8   0x0000000000029428       0x18 liblua.a(ltable.o)
+ .rodata.cst2   0x0000000000029428        0x2 liblua.a(ltable.o)
+ .rodata.str1.1
+                0x000000000002942a      0x125 liblua.a(ltm.o)
+ *fill*         0x000000000002942a        0x6 
+ .rodata        0x0000000000029430        0x9 liblua.a(ltm.o)
+ .rodata.str1.1
+                0x0000000000029439       0xfc liblua.a(lundump.o)
+ .rodata.str1.8
+                0x0000000000029439       0x1f liblua.a(lundump.o)
+ *fill*         0x0000000000029439        0x3 
+ .rodata        0x000000000002943c       0x54 liblua.a(lundump.o)
+ .rodata.cst8   0x0000000000029490        0x8 liblua.a(lundump.o)
+ .rodata.str1.1
+                0x0000000000029490       0x8b liblua.a(lvm.o)
+ .rodata.str1.8
+                0x0000000000029490       0x53 liblua.a(lvm.o)
+ .rodata        0x0000000000029490       0x5c liblua.a(lvm.o)
+ .rodata.cst8   0x00000000000294ec       0x28 liblua.a(lvm.o)
+ .rodata.cst16  0x00000000000294ec       0x20 liblua.a(lvm.o)
+ .rodata.str1.1
+                0x00000000000294ec      0x258 liblua.a(lauxlib.o)
+ .rodata.str1.8
+                0x00000000000294ec      0x116 liblua.a(lauxlib.o)
+ .rodata.cst16  0x00000000000294ec       0x10 liblua.a(lauxlib.o)
+ .rodata.str1.1
+                0x00000000000294ec       0x33 liblua.a(lcode.o)
+ *fill*         0x00000000000294ec        0x4 
+ .rodata        0x00000000000294f0      0x248 liblua.a(lcode.o)
+ .rodata.str1.8
+                0x0000000000029738       0x30 liblua.a(lcode.o)
+ .rodata.cst8   0x0000000000029738        0x8 liblua.a(lcode.o)
+ *fill*         0x0000000000029738        0x8 
+ .rodata        0x0000000000029740      0x101 liblua.a(lctype.o)
+                0x0000000000029740                luai_ctype_
+ .rodata.str1.1
+                0x0000000000029841      0x1e2 liblua.a(llex.o)
+ .rodata.str1.8
+                0x0000000000029841       0x29 liblua.a(llex.o)
+ *fill*         0x0000000000029841        0x3 
+ .rodata        0x0000000000029844      0x364 liblua.a(llex.o)
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x0000000000029ba8      0xf1c
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000000029ba8      0xf1c /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000029ba8                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x000000000002aac8     0x581c
+ *(.eh_frame)
+ .eh_frame      0x000000000002aac8       0x30 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                                         0x2c (size before relaxing)
+ *fill*         0x000000000002aaf8        0x0 
+ .eh_frame      0x000000000002aaf8       0x28 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x000000000002ab20       0x18 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                                         0x30 (size before relaxing)
+ .eh_frame      0x000000000002ab38       0x18 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                                         0x30 (size before relaxing)
+ .eh_frame      0x000000000002ab50      0x230 luac.o
+                                        0x248 (size before relaxing)
+ .eh_frame      0x000000000002ad80      0xa88 liblua.a(lapi.o)
+                                        0xaa0 (size before relaxing)
+ .eh_frame      0x000000000002b808      0x398 liblua.a(ldebug.o)
+                                        0x3b0 (size before relaxing)
+ .eh_frame      0x000000000002bba0      0x588 liblua.a(ldo.o)
+                                        0x5a0 (size before relaxing)
+ .eh_frame      0x000000000002c128      0x100 liblua.a(ldump.o)
+                                        0x118 (size before relaxing)
+ .eh_frame      0x000000000002c228      0x1c8 liblua.a(lfunc.o)
+                                        0x1e0 (size before relaxing)
+ .eh_frame      0x000000000002c3f0      0x718 liblua.a(lgc.o)
+                                        0x730 (size before relaxing)
+ .eh_frame      0x000000000002cb08      0x1c8 liblua.a(lmem.o)
+                                        0x1e0 (size before relaxing)
+ .eh_frame      0x000000000002ccd0      0x308 liblua.a(lobject.o)
+                                        0x320 (size before relaxing)
+ .eh_frame      0x000000000002cfd8      0x790 liblua.a(lparser.o)
+                                        0x7a8 (size before relaxing)
+ .eh_frame      0x000000000002d768      0x298 liblua.a(lstate.o)
+                                        0x2b0 (size before relaxing)
+ .eh_frame      0x000000000002da00      0x270 liblua.a(lstring.o)
+                                        0x288 (size before relaxing)
+ .eh_frame      0x000000000002dc70      0x300 liblua.a(ltable.o)
+                                        0x318 (size before relaxing)
+ .eh_frame      0x000000000002df70      0x2c0 liblua.a(ltm.o)
+                                        0x2d8 (size before relaxing)
+ .eh_frame      0x000000000002e230      0x140 liblua.a(lundump.o)
+                                        0x158 (size before relaxing)
+ .eh_frame      0x000000000002e370      0x468 liblua.a(lvm.o)
+                                        0x480 (size before relaxing)
+ .eh_frame      0x000000000002e7d8       0x88 liblua.a(lzio.o)
+                                         0xa0 (size before relaxing)
+ .eh_frame      0x000000000002e860      0xc30 liblua.a(lauxlib.o)
+                                        0xc48 (size before relaxing)
+ .eh_frame      0x000000000002f490      0xb40 liblua.a(lcode.o)
+                                        0xb58 (size before relaxing)
+ .eh_frame      0x000000000002ffd0      0x310 liblua.a(llex.o)
+                                        0x328 (size before relaxing)
+ .eh_frame      0x00000000000302e0        0x4 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ *(.eh_frame.*)
+
+.sframe         0x00000000000302e4        0x0
+ *(.sframe)
+ .sframe        0x00000000000302e4        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .sframe        0x00000000000302e4        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+                0x0000000000031450                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata          0x0000000000031450        0x0
+                [!provide]                        PROVIDE (__tdata_start = .)
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array  0x0000000000031450        0x0
+                [!provide]                        PROVIDE (__preinit_array_start = .)
+ *(.preinit_array)
+                [!provide]                        PROVIDE (__preinit_array_end = .)
+
+.init_array     0x0000000000031450        0x8
+                [!provide]                        PROVIDE (__init_array_start = .)
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000031450        0x8 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+                [!provide]                        PROVIDE (__init_array_end = .)
+
+.fini_array     0x0000000000031458        0x8
+                [!provide]                        PROVIDE (__fini_array_start = .)
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000031458        0x8 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+                [!provide]                        PROVIDE (__fini_array_end = .)
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000031460      0x7e8
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local
+                0x0000000000031460      0x2a0 luac.o
+ .data.rel.ro.local
+                0x0000000000031700      0x140 liblua.a(ltm.o)
+                0x00000000000317e0                luaT_typenames_
+ .data.rel.ro.local
+                0x0000000000031840      0x298 liblua.a(lvm.o)
+ *fill*         0x0000000000031ad8        0x8 
+ .data.rel.ro.local
+                0x0000000000031ae0       0x30 liblua.a(lauxlib.o)
+ *fill*         0x0000000000031b10       0x10 
+ .data.rel.ro.local
+                0x0000000000031b20      0x128 liblua.a(llex.o)
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000031c48        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+
+.dynamic        0x0000000000031c48      0x200
+ *(.dynamic)
+ .dynamic       0x0000000000031c48      0x200 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000031c48                _DYNAMIC
+
+.got            0x0000000000031e48      0x1a0
+ *(.got.plt)
+ .got.plt       0x0000000000031e48      0x178 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000031e48                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+ *(.got)
+ .got           0x0000000000031fc0       0x28 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ *(.igot)
+                0x0000000000032000                . = DATA_SEGMENT_RELRO_END (., 0x0)
+
+.data           0x0000000000032000       0x30
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000032000        0x4 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000032000                data_start
+                0x0000000000032000                __data_start
+ .data          0x0000000000032004        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+ .data          0x0000000000032004        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ *fill*         0x0000000000032004        0x4 
+ .data.rel.local
+                0x0000000000032008        0x8 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+                0x0000000000032008                __dso_handle
+ .data          0x0000000000032010       0x10 luac.o
+ .data.rel.local
+                0x0000000000032020       0x10 luac.o
+ .data          0x0000000000032030        0x0 liblua.a(lapi.o)
+ .data          0x0000000000032030        0x0 liblua.a(ldebug.o)
+ .data          0x0000000000032030        0x0 liblua.a(ldo.o)
+ .data          0x0000000000032030        0x0 liblua.a(ldump.o)
+ .data          0x0000000000032030        0x0 liblua.a(lfunc.o)
+ .data          0x0000000000032030        0x0 liblua.a(lgc.o)
+ .data          0x0000000000032030        0x0 liblua.a(lmem.o)
+ .data          0x0000000000032030        0x0 liblua.a(lobject.o)
+ .data          0x0000000000032030        0x0 liblua.a(lopcodes.o)
+ .data          0x0000000000032030        0x0 liblua.a(lparser.o)
+ .data          0x0000000000032030        0x0 liblua.a(lstate.o)
+ .data          0x0000000000032030        0x0 liblua.a(lstring.o)
+ .data          0x0000000000032030        0x0 liblua.a(ltable.o)
+ .data          0x0000000000032030        0x0 liblua.a(ltm.o)
+ .data          0x0000000000032030        0x0 liblua.a(lundump.o)
+ .data          0x0000000000032030        0x0 liblua.a(lvm.o)
+ .data          0x0000000000032030        0x0 liblua.a(lzio.o)
+ .data          0x0000000000032030        0x0 liblua.a(lauxlib.o)
+ .data          0x0000000000032030        0x0 liblua.a(lcode.o)
+ .data          0x0000000000032030        0x0 liblua.a(lctype.o)
+ .data          0x0000000000032030        0x0 liblua.a(llex.o)
+ .data          0x0000000000032030        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ .data          0x0000000000032030        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+
+.tm_clone_table
+                0x0000000000032030        0x0
+ .tm_clone_table
+                0x0000000000032030        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ .tm_clone_table
+                0x0000000000032030        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+
+.data1
+ *(.data1)
+                0x0000000000032030                _edata = .
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000032030                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                0x0000000000032040                __bss_start = .
+
+.bss            0x0000000000032040       0x40
+ *(.dynbss)
+ *fill*         0x0000000000032040        0x0 
+ .dynbss        0x0000000000032040       0x28 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+                0x0000000000032040                stdout@@GLIBC_2.2.5
+                0x0000000000032050                stdin@@GLIBC_2.2.5
+                0x0000000000032060                stderr@@GLIBC_2.2.5
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000032068        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o
+ .bss           0x0000000000032068        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o
+ .bss           0x0000000000032068        0x1 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+ *fill*         0x0000000000032069        0x7 
+ .bss           0x0000000000032070       0x10 luac.o
+ .bss           0x0000000000032080        0x0 liblua.a(lapi.o)
+ .bss           0x0000000000032080        0x0 liblua.a(ldebug.o)
+ .bss           0x0000000000032080        0x0 liblua.a(ldo.o)
+ .bss           0x0000000000032080        0x0 liblua.a(ldump.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lfunc.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lgc.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lmem.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lobject.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lopcodes.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lparser.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lstate.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lstring.o)
+ .bss           0x0000000000032080        0x0 liblua.a(ltable.o)
+ .bss           0x0000000000032080        0x0 liblua.a(ltm.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lundump.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lvm.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lzio.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lauxlib.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lcode.o)
+ .bss           0x0000000000032080        0x0 liblua.a(lctype.o)
+ .bss           0x0000000000032080        0x0 liblua.a(llex.o)
+ .bss           0x0000000000032080        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+ .bss           0x0000000000032080        0x0 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+ *(COMMON)
+                0x0000000000032080                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x0000000000032080                . = ALIGN (0x8)
+                0x0000000000032080                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x0000000000034080        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x0000000000034080                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000034080                . = ALIGN (0x8)
+                0x0000000000032080                _end = .
+                [!provide]                        PROVIDE (end = .)
+                0x0000000000034080                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x2b
+ *(.comment)
+ .comment       0x0000000000000000       0x2b /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o
+                                         0x2c (size before relaxing)
+ .comment       0x000000000000002b       0x2c luac.o
+ .comment       0x000000000000002b       0x2c liblua.a(lapi.o)
+ .comment       0x000000000000002b       0x2c liblua.a(ldebug.o)
+ .comment       0x000000000000002b       0x2c liblua.a(ldo.o)
+ .comment       0x000000000000002b       0x2c liblua.a(ldump.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lfunc.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lgc.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lmem.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lobject.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lopcodes.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lparser.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lstate.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lstring.o)
+ .comment       0x000000000000002b       0x2c liblua.a(ltable.o)
+ .comment       0x000000000000002b       0x2c liblua.a(ltm.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lundump.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lvm.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lzio.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lauxlib.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lcode.o)
+ .comment       0x000000000000002b       0x2c liblua.a(lctype.o)
+ .comment       0x000000000000002b       0x2c liblua.a(llex.o)
+ .comment       0x000000000000002b       0x2c /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info .gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line .debug_line.* .debug_line_end)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+ *(.debug_line_str)
+
+.debug_loclists
+ *(.debug_loclists)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+ *(.debug_rnglists)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+OUTPUT(luac elf64-x86-64)
