@@ -72,7 +72,7 @@ def install_dependencies_if_needed(python_exe):
             print("📦 Installing dependencies...")
             if not REQUIREMENTS_FILE.exists():
                 print(f"❌ {REQUIREMENTS_FILE} not found!")
-                sys.exit(1)
+                return False
             
             # Upgrade pip first
             subprocess.run(
@@ -91,7 +91,8 @@ def install_dependencies_if_needed(python_exe):
         print("Try running manually:")
         print(f"  source .venv/bin/activate")
         print(f"  pip install -r requirements.txt")
-        sys.exit(1)
+        return False
+    return True
 
 def run_via_subprocess(venv_python):
     """Run the main application via subprocess using venv Python."""
@@ -112,10 +113,10 @@ def run_via_subprocess(venv_python):
             [str(venv_python), str(src_dir / 'bin_xray.py')] + sys.argv[1:],
             env=env
         )
-        sys.exit(result.returncode)
+        return result.returncode
     except KeyboardInterrupt:
         print("\n\n👋 Bin-Xray terminated by user")
-        sys.exit(0)
+        return 0
 
 def run_directly():
     """Run the application directly by importing (for debugger support)."""
@@ -127,7 +128,17 @@ def run_directly():
         # Import and run main
         from bin_xray import main
         main()
+        return 0
     except ImportError as e:
+        if getattr(e, 'name', '') == 'tkinter':
+            print("❌ Missing system dependency: tkinter")
+            print("\nBin-Xray uses a GUI and requires tkinter from your OS Python packages.")
+            print("Install it with:")
+            print("  Ubuntu/Debian: sudo apt-get install python3-tk")
+            print("  Fedora/RHEL:   sudo dnf install python3-tkinter")
+            print("\nThen re-run the same launch configuration.")
+            return 1
+
         print(f"❌ Failed to import bin_xray: {e}")
         print("\nDependencies may not be installed in your current Python environment.")
         print("Solution:")
@@ -136,7 +147,14 @@ def run_directly():
         print("\n2. Or run from terminal:")
         print("   source .venv/bin/activate")
         print("   python3 bin_xray.py")
-        sys.exit(1)
+        return 1
+    except Exception as e:
+        if e.__class__.__name__ == 'TclError' and 'no display name and no $DISPLAY environment variable' in str(e):
+            print("❌ GUI cannot start: no display server found (DISPLAY is not set).")
+            print("\nThis environment is headless, but Bin-Xray requires a desktop display for tkinter.")
+            print("Run it from a local desktop VS Code session, or provide an X display (e.g., X11 forwarding/Xvfb).")
+            return 1
+        raise
 
 def main():
     """Main entry point with auto-setup."""
@@ -151,18 +169,22 @@ def main():
         # Ensure venv exists for future runs
         if not in_venv:
             ensure_venv()
-            install_dependencies_if_needed(VENV_PYTHON)
+            if not install_dependencies_if_needed(VENV_PYTHON):
+                return 1
             print("\n⚠️  Note: Debugger is using system Python. For best results:")
             print("   In VS Code: Ctrl+Shift+P → 'Python: Select Interpreter' → Choose '.venv/bin/python3'")
             print("\nContinuing with current Python environment...\n")
-        run_directly()
+        return run_directly()
     else:
         # Normal terminal run - use venv via subprocess
         ensure_venv()
-        install_dependencies_if_needed(VENV_PYTHON)
-        run_via_subprocess(VENV_PYTHON)
+        if not install_dependencies_if_needed(VENV_PYTHON):
+            return 1
+        return run_via_subprocess(VENV_PYTHON)
 
 if __name__ == '__main__':
-    main()
+    exit_code = main()
+    if not is_debugger_active():
+        sys.exit(exit_code)
 
 
