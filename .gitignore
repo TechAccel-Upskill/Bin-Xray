@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application-specific
+*.graphml
+*.png
+*.svg
+dependency_graph.*
+~/.binxray_config.json
+
+# Test outputs
+test_output/
+*.log
+
+# Cached layouts
+layout_*.pkl

@@ -1,0 +1,19 @@
+# Requirements for Bin-Xray
+
+# Core Python dependencies
+networkx>=3.0
+
+# Note: matplotlib is no longer required (removed graph visualization)
+# Note: tkinter is required but comes with Python (install python3-tk on Linux)
+
+# Optional: For PyQt alternative GUI (not used in main version)
+# PyQt5>=5.15.0
+
+# Optional: For pandas-based symbol table view
+# pandas>=1.2.0
+
+# Note: tkinter is part of Python standard library
+# If you get "No module named '_tkinter'", install:
+#   Ubuntu/Debian: sudo apt-get install python3-tk
+#   Fedora/RHEL: sudo dnf install python3-tkinter
+#   macOS: Should be included with Python
