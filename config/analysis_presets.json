@@ -1,0 +1,26 @@
+{
+  "ADAS Camera": {
+    "binary": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.elf",
+    "map": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.map",
+    "libdir": "${workspaceFolder}/test_binaries/adas_camera/",
+    "show_symbols": true,
+    "auto": true
+  },
+  "VIM Binary": {
+    "binary": "${workspaceFolder}/test_binaries/vim.elf",
+    "libdir": "${workspaceFolder}/test_binaries/vim_libs/",
+    "auto": true
+  },
+  "Multi-Module Test": {
+    "binary": "${workspaceFolder}/test_binaries/multi/main",
+    "libdir": "${workspaceFolder}/test_binaries/libs/",
+    "auto": true
+  },
+  "Lua Real-World": {
+    "binary": "${workspaceFolder}/test_binaries/real_world/lua/lua",
+    "map": "${workspaceFolder}/test_binaries/real_world/lua/lua.map",
+    "libdir": "${workspaceFolder}/test_binaries/real_world/lua/",
+    "show_symbols": true,
+    "auto": true
+  }
+}

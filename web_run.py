@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from pathlib import Path
 from typing import Any, Dict, Optional
-import tempfile
 import os
 import socket
+import json
 
 from flask import Flask, request, render_template_string
 
@@ -15,6 +15,8 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from bin_xray import BinaryParser, MapFileParser, LibraryParser, DependencyGraphBuilder
+
+PRESETS_FILE = ROOT / "config" / "analysis_presets.json"
 
 
 def _resolve_port(default_port: int = 8000) -> int:
@@ -32,6 +34,38 @@ def _resolve_port(default_port: int = 8000) -> int:
         except OSError:
             sock.bind(("0.0.0.0", 0))
             return int(sock.getsockname()[1])
+
+
+def _replace_workspace_var(value: Optional[str]) -> str:
+    if not value:
+        return ""
+    return value.replace('${workspaceFolder}', str(ROOT))
+
+
+def _load_presets() -> Dict[str, Dict[str, Any]]:
+    if not PRESETS_FILE.exists():
+        return {}
+
+    try:
+        with open(PRESETS_FILE, 'r', encoding='utf-8') as f:
+            raw = json.load(f)
+    except Exception:
+        return {}
+
+    presets: Dict[str, Dict[str, Any]] = {}
+    for name, preset in raw.items():
+        if not isinstance(preset, dict):
+            continue
+        presets[name] = {
+            "binary": _replace_workspace_var(preset.get("binary")),
+            "map": _replace_workspace_var(preset.get("map")),
+            "libdir": _replace_workspace_var(preset.get("libdir")),
+            "sdk_tools": _replace_workspace_var(preset.get("sdk_tools")),
+            "depth": preset.get("depth", 5),
+            "show_symbols": bool(preset.get("show_symbols", False))
+        }
+
+    return presets
 
 PAGE = """
 <!doctype html>
@@ -108,7 +142,7 @@ PAGE = """
             font-size: 12px;
             color: var(--muted);
         }
-        input[type=text], input[type=number], input[type=file] {
+        input[type=text], input[type=number], input[type=file], select {
             width: 100%;
             border: 1px solid #cbd5e1;
             border-radius: 10px;
@@ -211,47 +245,48 @@ PAGE = """
 
         <div class=\"card\">
             <h3 class=\"section-title\">Analysis Inputs</h3>
-            <form method=\"post\" action=\"/analyze\" enctype=\"multipart/form-data\">
+            <form method=\"post\" action=\"/analyze\">
                 <div class=\"field-grid\">
                     <div class=\"field-full\">
+                        <label>Preset Configuration</label>
+                        <select id=\"presetSelect\" name=\"preset\">
+                            <option value=\"\">(none)</option>
+                            {% for preset_name in preset_options %}
+                            <option value=\"{{ preset_name }}\" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class=\"hint\">Choose a preset to load binary/map/lib settings by name.</div>
+                    </div>
+
+                    <div class=\"field-full\">
                         <label>Binary Path</label>
-                        <input type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
-                        <div class=\"hint\">Use path input or upload a file below.</div>
-                    </div>
-
-                    <div>
-                        <label>Upload Binary</label>
-                        <input type=\"file\" name=\"binary_file\" />
-                    </div>
-
-                    <div>
-                        <label>Upload Map File</label>
-                        <input type=\"file\" name=\"map_file\" />
+                        <input id=\"binaryPath\" type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
+                        <div class=\"hint\">Provide absolute paths from the workspace.</div>
                     </div>
 
                     <div class=\"field-full\">
                         <label>Map File Path</label>
-                        <input type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
+                        <input id=\"mapPath\" type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
                     </div>
 
                     <div class=\"field-full\">
                         <label>Library Directory</label>
-                        <input type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
+                        <input id=\"libDir\" type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
                     </div>
 
                     <div>
                         <label>SDK Tools Directory (optional)</label>
-                        <input type=\"text\" name=\"sdk_tools\" value=\"{{ form.sdk_tools }}\" />
+                        <input id=\"sdkTools\" type=\"text\" name=\"sdk_tools\" value=\"{{ form.sdk_tools }}\" />
                     </div>
 
                     <div>
                         <label>Depth</label>
-                        <input type=\"number\" min=\"1\" max=\"20\" name=\"depth\" value=\"{{ form.depth }}\" />
+                        <input id=\"depthInput\" type=\"number\" min=\"1\" max=\"20\" name=\"depth\" value=\"{{ form.depth }}\" />
                     </div>
                 </div>
 
                 <label class=\"toggle\">
-                    <input type=\"checkbox\" name=\"show_symbols\" {% if form.show_symbols %}checked{% endif %} />
+                    <input id=\"showSymbols\" type=\"checkbox\" name=\"show_symbols\" {% if form.show_symbols %}checked{% endif %} />
                     Show symbol dependencies
                 </label>
 
@@ -293,6 +328,38 @@ PAGE = """
   {% endif %}
     </div>
 </body>
+<script>
+    const presetData = {{ preset_data | tojson }};
+
+    function applyPresetToForm(presetName) {
+        if (!presetName || !presetData[presetName]) {
+            return;
+        }
+
+        const preset = presetData[presetName];
+        const binary = document.getElementById('binaryPath');
+        const map = document.getElementById('mapPath');
+        const libdir = document.getElementById('libDir');
+        const sdkTools = document.getElementById('sdkTools');
+        const depth = document.getElementById('depthInput');
+        const showSymbols = document.getElementById('showSymbols');
+
+        if (binary) binary.value = preset.binary || '';
+        if (map) map.value = preset.map || '';
+        if (libdir) libdir.value = preset.libdir || '';
+        if (sdkTools) sdkTools.value = preset.sdk_tools || '';
+        if (depth) depth.value = String(preset.depth ?? 5);
+        if (showSymbols) showSymbols.checked = Boolean(preset.show_symbols);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const presetSelect = document.getElementById('presetSelect');
+        if (!presetSelect) return;
+        presetSelect.addEventListener('change', (event) => {
+            applyPresetToForm(event.target.value);
+        });
+    });
+</script>
 </html>
 """
 
@@ -313,6 +380,7 @@ def _form_defaults() -> Dict[str, Any]:
         "sdk_tools": "",
         "depth": 5,
         "show_symbols": False,
+        "preset": "",
     }
 
 
@@ -325,7 +393,7 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
     show_symbols = bool(form["show_symbols"])
 
     if not binary_path and not map_path:
-        raise ValueError("Please provide at least a binary or map file (path input or file upload).")
+        raise ValueError("Please provide at least a binary or map file path.")
 
     binary_info = None
     if binary_path:
@@ -384,11 +452,17 @@ def create_app() -> Flask:
 
     @app.get("/")
     def home():
-        return render_template_string(PAGE, form=_form_defaults(), result=None, error=None)
+        presets = _load_presets()
+        form = _form_defaults()
+        if "ADAS Camera" in presets:
+            form.update(presets["ADAS Camera"])
+            form["preset"] = "ADAS Camera"
+        return render_template_string(PAGE, form=form, result=None, error=None, preset_options=sorted(presets.keys()), preset_data=presets)
 
     @app.post("/analyze")
     def analyze():
         form = {
+            "preset": request.form.get("preset", ""),
             "binary": request.form.get("binary", ""),
             "map": request.form.get("map", ""),
             "libdir": request.form.get("libdir", ""),
@@ -397,28 +471,22 @@ def create_app() -> Flask:
             "show_symbols": _to_bool(request.form.get("show_symbols")),
         }
         try:
-            binary_upload = request.files.get("binary_file")
-            map_upload = request.files.get("map_file")
+            presets = _load_presets()
+            preset_name = form.get("preset", "")
+            if preset_name and preset_name in presets:
+                selected = presets[preset_name]
+                form["binary"] = selected.get("binary", "")
+                form["map"] = selected.get("map", "")
+                form["libdir"] = selected.get("libdir", "")
+                form["sdk_tools"] = selected.get("sdk_tools", "")
+                form["depth"] = str(selected.get("depth", 5))
+                form["show_symbols"] = bool(selected.get("show_symbols", False))
 
-            with tempfile.TemporaryDirectory(prefix="binxray_web_") as temp_dir:
-                temp_path = Path(temp_dir)
-
-                if binary_upload and binary_upload.filename:
-                    binary_name = Path(binary_upload.filename).name or "uploaded_binary"
-                    binary_temp_path = temp_path / binary_name
-                    binary_upload.save(binary_temp_path)
-                    form["binary"] = str(binary_temp_path)
-
-                if map_upload and map_upload.filename:
-                    map_name = Path(map_upload.filename).name or "uploaded_map"
-                    map_temp_path = temp_path / map_name
-                    map_upload.save(map_temp_path)
-                    form["map"] = str(map_temp_path)
-
-                result = _analyze(form)
-            return render_template_string(PAGE, form=form, result=result, error=None)
+            result = _analyze(form)
+            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets)
         except Exception as exc:
-            return render_template_string(PAGE, form=form, result=None, error=str(exc))
+            presets = _load_presets()
+            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets)
 
     return app
 

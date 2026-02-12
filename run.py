@@ -6,12 +6,76 @@ Wrapper script with auto-setup capabilities
 import sys
 import os
 import subprocess
+import json
+import argparse
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 VENV_DIR = SCRIPT_DIR / '.venv'
 REQUIREMENTS_FILE = SCRIPT_DIR / 'requirements.txt'
 VENV_PYTHON = VENV_DIR / 'bin' / 'python3'
+PRESETS_FILE = SCRIPT_DIR / 'config' / 'analysis_presets.json'
+
+
+def _replace_workspace_var(value):
+    if isinstance(value, str):
+        return value.replace('${workspaceFolder}', str(SCRIPT_DIR))
+    return value
+
+
+def _flag_present(argv, long_flag, short_flag):
+    return long_flag in argv or short_flag in argv
+
+
+def apply_preset_arguments(argv):
+    """Apply --preset arguments from config/analysis_presets.json."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--preset')
+    known, remaining = parser.parse_known_args(argv)
+
+    if not known.preset or known.preset == '(none)':
+        return argv, True
+
+    if not PRESETS_FILE.exists():
+        print(f"❌ Preset config not found: {PRESETS_FILE}")
+        return argv, False
+
+    try:
+        with open(PRESETS_FILE, 'r', encoding='utf-8') as f:
+            presets = json.load(f)
+    except Exception as exc:
+        print(f"❌ Failed to read preset config: {exc}")
+        return argv, False
+
+    preset_name = known.preset
+    preset = presets.get(preset_name)
+    if not preset:
+        available = ', '.join(sorted(presets.keys()))
+        print(f"❌ Preset '{preset_name}' not found.")
+        print(f"Available presets: {available}")
+        return argv, False
+
+    resolved = list(remaining)
+
+    binary = _replace_workspace_var(preset.get('binary'))
+    map_file = _replace_workspace_var(preset.get('map'))
+    libdir = _replace_workspace_var(preset.get('libdir'))
+    show_symbols = bool(preset.get('show_symbols', False))
+    auto = bool(preset.get('auto', True))
+
+    if binary and not _flag_present(resolved, '--binary', '-b'):
+        resolved.extend(['--binary', binary])
+    if map_file and not _flag_present(resolved, '--map', '-m'):
+        resolved.extend(['--map', map_file])
+    if libdir and not _flag_present(resolved, '--libdir', '-l'):
+        resolved.extend(['--libdir', libdir])
+    if show_symbols and not _flag_present(resolved, '--show-symbols', '-s'):
+        resolved.append('--show-symbols')
+    if auto and not _flag_present(resolved, '--auto', '-a'):
+        resolved.append('--auto')
+
+    print(f"📌 Using preset: {preset_name}")
+    return resolved, True
 
 def is_debugger_active():
     """Detect if running under a debugger (VS Code, PyCharm, etc.)."""
@@ -158,6 +222,11 @@ def run_directly():
 
 def main():
     """Main entry point with auto-setup."""
+    updated_args, ok = apply_preset_arguments(sys.argv[1:])
+    if not ok:
+        return 1
+    sys.argv = [sys.argv[0]] + updated_args
+
     in_debugger = is_debugger_active()
     in_venv = is_venv_active()
     
