@@ -4,6 +4,8 @@ from typing import Any, Dict, Optional
 import os
 import socket
 import json
+import csv
+import io
 
 from flask import Flask, request, render_template_string
 
@@ -66,6 +68,7 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         }
 
     return presets
+
 
 PAGE = """
 <!doctype html>
@@ -347,6 +350,24 @@ PAGE = """
         }
         .card-head .section-title {
             margin: 0;
+        }
+        .sortable-th {
+            white-space: nowrap;
+        }
+        .sortable-btn {
+            border: 0;
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            margin-left: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            box-shadow: none;
+            line-height: 1;
+        }
+        .sortable-btn:hover {
+            color: var(--brand-2);
+            filter: none;
         }
         .collapsed-body {
             display: none;
@@ -737,42 +758,38 @@ PAGE = """
         <div class=\"card\">
             <div id="detailedHead" class="card-head collapsible-head">
                 <h3 class=\"section-title\">Detailed Summary for {{ result.binary_name }}</h3>
-                <button id="detailedToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('detailedBody','detailedToggleBtn','binxray-collapse-detailed')" aria-expanded="true" aria-label="Toggle Detailed Summary"></button>
+                <div class="head-actions">
+                    <form method="post" action="/download-detailed-csv">
+                        <input type="hidden" name="preset" value="{{ form.preset }}" />
+                        <input type="hidden" name="binary" value="{{ form.binary }}" />
+                        <input type="hidden" name="map" value="{{ form.map }}" />
+                        <input type="hidden" name="libdir" value="{{ form.libdir }}" />
+                        <input type="hidden" name="sdk_tools" value="{{ form.sdk_tools }}" />
+                        <input type="hidden" name="depth" value="{{ form.depth }}" />
+                        <input type="hidden" name="show_symbols" value="{{ 'on' if form.show_symbols else '' }}" />
+                        <button type="submit" class="clear-results-btn" aria-label="Download Detailed Summary CSV">Download CSV</button>
+                    </form>
+                    <button id="detailedToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('detailedBody','detailedToggleBtn','binxray-collapse-detailed')" aria-expanded="true" aria-label="Toggle Detailed Summary"></button>
+                </div>
             </div>
             <div id="detailedBody">
-            <table>
-                <tr><th>Component Type</th><th>Used</th><th>Unused</th></tr>
-                {% for row in result.component_rows %}
+            <table id="detailedSummaryTable">
                 <tr>
-                    <td>{{ row.component_type }}</td>
-                    <td>
-                        {% if row.used %}
-                        <div class=\"component-cell\">
-                            <ul class=\"component-list\">
-                                {% for item in row.used %}
-                                <li>{{ item }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% else %}
-                        None
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if row.unused %}
-                        <div class=\"component-cell\">
-                            <ul class=\"component-list\">
-                                {% for item in row.unused %}
-                                <li>{{ item }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% else %}
-                        None
-                        {% endif %}
-                    </td>
+                    <th class="sortable-th">Unused Library<button type="button" class="sortable-btn" onclick="sortDetailedSummaryByColumn(0)" aria-label="Sort by unused library">⇅</button></th>
+                    <th class="sortable-th">Unused Object<button type="button" class="sortable-btn" onclick="sortDetailedSummaryByColumn(1)" aria-label="Sort by unused object">⇅</button></th>
+                    <th class="sortable-th">Source File<button type="button" class="sortable-btn" onclick="sortDetailedSummaryByColumn(2)" aria-label="Sort by source file">⇅</button></th>
+                </tr>
+                {% if result.unused_detail_rows %}
+                {% for row in result.unused_detail_rows %}
+                <tr class="detail-row">
+                    <td>{{ row.unused_library or '-' }}</td>
+                    <td>{{ row.unused_object or '-' }}</td>
+                    <td>{{ row.source_file or '-' }}</td>
                 </tr>
                 {% endfor %}
+                {% else %}
+                <tr><td colspan="3">None</td></tr>
+                {% endif %}
             </table>
             </div>
         </div>
@@ -784,6 +801,7 @@ PAGE = """
 <script>
     const presetData = {{ preset_data | tojson }};
     const hasResult = {{ 'true' if result else 'false' }};
+    const detailedSortState = { column: -1, asc: true };
 
     function showGradeInfo() {
         const gradeGuide = [
@@ -913,6 +931,34 @@ PAGE = """
             sectionBody.classList.toggle('collapsed-body', shouldCollapse);
             updateSectionToggleButton(section.buttonId, shouldCollapse);
         });
+    }
+
+    function sortDetailedSummaryByColumn(columnIndex) {
+        const table = document.getElementById('detailedSummaryTable');
+        if (!table) return;
+
+        const rows = Array.from(table.querySelectorAll('tr.detail-row'));
+        if (!rows.length) return;
+
+        if (detailedSortState.column === columnIndex) {
+            detailedSortState.asc = !detailedSortState.asc;
+        } else {
+            detailedSortState.column = columnIndex;
+            detailedSortState.asc = true;
+        }
+
+        rows.sort((rowA, rowB) => {
+            const textA = (rowA.children[columnIndex]?.textContent || '').trim().toLowerCase();
+            const textB = (rowB.children[columnIndex]?.textContent || '').trim().toLowerCase();
+
+            if (textA === textB) return 0;
+            if (detailedSortState.asc) {
+                return textA > textB ? 1 : -1;
+            }
+            return textA < textB ? 1 : -1;
+        });
+
+        rows.forEach((row) => table.appendChild(row));
     }
 
     function clearResultSections() {
@@ -1136,6 +1182,50 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
         return formatted_name
 
     used_objects = [_format_object_name(item) for item in used_objects]
+    def _parse_unused_object_parts(name: str) -> Dict[str, str]:
+        library_name = ""
+        object_name = ""
+
+        if ":" in name:
+            lib_name, obj_name = name.split(":", 1)
+            if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
+                library_name = lib_name.strip()
+                object_name = Path(obj_name.strip()).name
+
+        elif "(" in name:
+            left, right = name.rsplit("(", 1)
+            lib_name = left.strip()
+            obj_name = right.rstrip(")").strip()
+            if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
+                library_name = lib_name
+                object_name = Path(obj_name).name
+
+        if not object_name:
+            extracted = _extract_object_name(name)
+            object_name = extracted or ""
+
+        source_file = _resolve_source_for_object(name) or ""
+        return {
+            "unused_library": library_name,
+            "unused_object": object_name,
+            "source_file": source_file,
+        }
+
+    unused_detail_rows = [_parse_unused_object_parts(item) for item in sorted(unused["unused_objects"])]
+    libraries_with_rows = {row["unused_library"] for row in unused_detail_rows if row["unused_library"]}
+    for library_name in sorted(unused["unused_libraries"]):
+        if library_name not in libraries_with_rows:
+            unused_detail_rows.append({
+                "unused_library": library_name,
+                "unused_object": "",
+                "source_file": "",
+            })
+
+    unused_detail_rows = [
+        row for row in unused_detail_rows
+        if any(str(row.get(key, "")).strip() for key in ("unused_library", "unused_object", "source_file"))
+    ]
+
     unused_objects_formatted = [_format_object_name(item, include_source=True) for item in unused["unused_objects"]]
 
     return {
@@ -1147,6 +1237,7 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
         "grade_short": grade.split(" ", 1)[0],
         "grade": grade,
         "details": details,
+        "unused_detail_rows": unused_detail_rows,
         "component_rows": [
             {
                 "component_type": "Library",
@@ -1165,6 +1256,29 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    def _get_form_data() -> Dict[str, Any]:
+        return {
+            "preset": request.form.get("preset", ""),
+            "binary": request.form.get("binary", ""),
+            "map": request.form.get("map", ""),
+            "libdir": request.form.get("libdir", ""),
+            "sdk_tools": request.form.get("sdk_tools", ""),
+            "depth": request.form.get("depth", "5"),
+            "show_symbols": _to_bool(request.form.get("show_symbols")),
+        }
+
+    def _apply_selected_preset(form: Dict[str, Any], presets: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+        preset_name = form.get("preset", "")
+        if preset_name and preset_name in presets:
+            selected = presets[preset_name]
+            form["binary"] = selected.get("binary", "")
+            form["map"] = selected.get("map", "")
+            form["libdir"] = selected.get("libdir", "")
+            form["sdk_tools"] = selected.get("sdk_tools", "")
+            form["depth"] = str(selected.get("depth", 5))
+            form["show_symbols"] = bool(selected.get("show_symbols", False))
+        return form
+
     @app.get("/")
     def home():
         presets = _load_presets()
@@ -1176,32 +1290,45 @@ def create_app() -> Flask:
 
     @app.post("/analyze")
     def analyze():
-        form = {
-            "preset": request.form.get("preset", ""),
-            "binary": request.form.get("binary", ""),
-            "map": request.form.get("map", ""),
-            "libdir": request.form.get("libdir", ""),
-            "sdk_tools": request.form.get("sdk_tools", ""),
-            "depth": request.form.get("depth", "5"),
-            "show_symbols": _to_bool(request.form.get("show_symbols")),
-        }
+        form = _get_form_data()
         try:
             presets = _load_presets()
-            preset_name = form.get("preset", "")
-            if preset_name and preset_name in presets:
-                selected = presets[preset_name]
-                form["binary"] = selected.get("binary", "")
-                form["map"] = selected.get("map", "")
-                form["libdir"] = selected.get("libdir", "")
-                form["sdk_tools"] = selected.get("sdk_tools", "")
-                form["depth"] = str(selected.get("depth", 5))
-                form["show_symbols"] = bool(selected.get("show_symbols", False))
+            form = _apply_selected_preset(form, presets)
 
             result = _analyze(form)
             return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets)
         except Exception as exc:
             presets = _load_presets()
             return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets)
+
+    @app.post("/download-detailed-csv")
+    def download_detailed_csv():
+        form = _get_form_data()
+        try:
+            presets = _load_presets()
+            form = _apply_selected_preset(form, presets)
+            result = _analyze(form)
+
+            csv_buffer = io.StringIO()
+            writer = csv.writer(csv_buffer)
+            writer.writerow(["Binary", "Unused Library", "Unused Object", "Source File"])
+
+            for row in result.get("unused_detail_rows", []):
+                writer.writerow([
+                    result.get("binary_name", ""),
+                    row.get("unused_library", ""),
+                    row.get("unused_object", ""),
+                    row.get("source_file", ""),
+                ])
+
+            filename = f"binxray_detailed_summary_{result.get('binary_name', 'report').replace(' ', '_')}.csv"
+            return app.response_class(
+                csv_buffer.getvalue(),
+                mimetype="text/csv",
+                headers={"Content-Disposition": f"attachment; filename={filename}"},
+            )
+        except Exception as exc:
+            return app.response_class(str(exc), status=400, mimetype="text/plain")
 
     return app
 
