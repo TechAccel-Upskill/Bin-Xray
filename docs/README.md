@@ -88,6 +88,39 @@ brew install binutils
    python3 run.py
    ```
 
+## User Guide
+
+### Run an Analysis
+
+1. Open the app and select:
+   - Binary file (.elf, .out, .axf)
+   - Map file (.map, optional but recommended)
+   - Library directory (optional, for .a/.so)
+2. Click "Generate Report".
+3. Wait for the analysis to finish; the report appears in the right panel.
+
+### Copy Report Text
+
+- Highlight the text in the report panel and press `Ctrl+C`.
+- Or use the "Copy" button in the report toolbar to copy the full report.
+
+### Understand the Report
+
+The report is organized as follows:
+
+- Build score header and usage ratio.
+- Detailed Summary of unused resources of <binary>.
+- Static libraries section with used/not used counts and itemized libraries/objects.
+- Dynamic libraries section with used/not used counts.
+- Recommendations with cleanup tips.
+- Legend for used vs not used markers.
+
+### Common Tasks
+
+- Reduce clutter: lower max depth to 3-4.
+- Focus on a subsystem: use the search box.
+- Export the report: click "Export" to save the text report.
+
 ## Usage
 
 ### Basic Workflow
