@@ -87,11 +87,16 @@ PAGE = """
             --bad: #b91c1c;
             --page-grad-start: #1e3a8a;
             --page-grad-end: var(--bg);
-            --hero-start: #111827;
-            --hero-end: #1e293b;
-            --hero-text: #e2e8f0;
-            --hero-border: rgba(148, 163, 184, 0.2);
-            --hero-shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+            --hero-start: #eff6ff;
+            --hero-end: #dbeafe;
+            --hero-text: #0f172a;
+            --hero-border: rgba(148, 163, 184, 0.35);
+            --hero-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+            --hero-control-bg: rgba(255, 255, 255, 0.72);
+            --hero-control-border: rgba(148, 163, 184, 0.55);
+            --hero-control-text: #1e293b;
+            --hero-control-hover: rgba(241, 245, 249, 0.95);
+            --hero-toggle-knob: #ffffff;
             --label: #334155;
             --input-bg: #ffffff;
             --input-border: #cbd5e1;
@@ -124,11 +129,16 @@ PAGE = """
             --brand-2: #2563eb;
             --page-grad-start: #0f172a;
             --page-grad-end: #020617;
-            --hero-start: #020617;
+            --hero-start: #0b1220;
             --hero-end: #111827;
             --hero-text: #e2e8f0;
-            --hero-border: rgba(71, 85, 105, 0.5);
+            --hero-border: rgba(71, 85, 105, 0.55);
             --hero-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            --hero-control-bg: rgba(15, 23, 42, 0.5);
+            --hero-control-border: rgba(100, 116, 139, 0.55);
+            --hero-control-text: #e2e8f0;
+            --hero-control-hover: rgba(30, 41, 59, 0.95);
+            --hero-toggle-knob: #e2e8f0;
             --label: #cbd5e1;
             --input-bg: #111827;
             --input-border: #334155;
@@ -174,6 +184,7 @@ PAGE = """
             padding: 18px 20px;
             margin-bottom: 16px;
             box-shadow: var(--hero-shadow);
+            backdrop-filter: blur(3px);
         }
         .hero-head {
             display: flex;
@@ -188,16 +199,16 @@ PAGE = """
         }
         .hero h2 { margin: 0; font-size: 22px; }
         .hero-info-btn {
-            border-color: rgba(148, 163, 184, 0.45);
-            background: rgba(15, 23, 42, 0.45);
-            color: #e2e8f0;
+            border-color: var(--hero-control-border);
+            background: var(--hero-control-bg);
+            color: var(--hero-control-text);
         }
-        .hero-info-btn:hover { background: rgba(30, 41, 59, 0.9); }
+        .hero-info-btn:hover { background: var(--hero-control-hover); }
         .theme-switch {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #e2e8f0;
+            color: var(--hero-text);
             font-size: 12px;
             font-weight: 600;
             user-select: none;
@@ -210,8 +221,8 @@ PAGE = """
             width: 42px;
             height: 22px;
             border-radius: 999px;
-            border: 1px solid rgba(148, 163, 184, 0.45);
-            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid var(--hero-control-border);
+            background: var(--hero-control-bg);
             transition: background 0.2s ease;
             cursor: pointer;
         }
@@ -223,7 +234,7 @@ PAGE = """
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #e2e8f0;
+            background: var(--hero-toggle-knob);
             transition: transform 0.2s ease;
         }
         .theme-switch input:checked + .theme-slider {
@@ -310,6 +321,25 @@ PAGE = """
             justify-content: space-between;
             gap: 8px;
             margin-bottom: 8px;
+        }
+        .head-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .clear-results-btn {
+            border: 1px solid var(--brand-2);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            color: #ffffff;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+        }
+        .clear-results-btn:hover {
+            filter: brightness(1.07);
         }
         .collapsible-head {
             cursor: pointer;
@@ -659,10 +689,14 @@ PAGE = """
   {% endif %}
 
   {% if result %}
+        <div id="resultSections">
         <div class=\"card\">
             <div id="summaryHead" class="card-head collapsible-head">
                 <h3 class=\"section-title\">Summary for {{ result.binary_name }}</h3>
-                <button id="summaryToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('summaryBody','summaryToggleBtn','binxray-collapse-summary')" aria-expanded="true" aria-label="Toggle Summary"></button>
+                <div class="head-actions">
+                    <button type="button" class="clear-results-btn" onclick="clearResultSections()" aria-label="Clear Summary and Detailed Summary">Clear Results</button>
+                    <button id="summaryToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('summaryBody','summaryToggleBtn','binxray-collapse-summary')" aria-expanded="true" aria-label="Toggle Summary"></button>
+                </div>
             </div>
             <div id="summaryBody">
             <div class=\"metrics\">
@@ -741,6 +775,7 @@ PAGE = """
                 {% endfor %}
             </table>
             </div>
+        </div>
         </div>
   {% endif %}
 
@@ -878,6 +913,15 @@ PAGE = """
             sectionBody.classList.toggle('collapsed-body', shouldCollapse);
             updateSectionToggleButton(section.buttonId, shouldCollapse);
         });
+    }
+
+    function clearResultSections() {
+        const resultSections = document.getElementById('resultSections');
+        if (!resultSections) return;
+
+        resultSections.style.display = 'none';
+        localStorage.removeItem('binxray-collapse-summary');
+        localStorage.removeItem('binxray-collapse-detailed');
     }
 
     function applyPresetToForm(presetName) {
