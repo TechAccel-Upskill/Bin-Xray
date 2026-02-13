@@ -13,8 +13,6 @@ import os
 import re
 import subprocess
 import webbrowser
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, scrolledtext
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional, Any
 from dataclasses import dataclass, field
@@ -22,6 +20,19 @@ import json
 import platform
 
 import networkx as nx
+
+# Import tkinter only if available (needed for GUI, not for core functionality)
+try:
+    import tkinter as tk
+    from tkinter import ttk, filedialog, messagebox, scrolledtext
+    TKINTER_AVAILABLE = True
+except ImportError:
+    TKINTER_AVAILABLE = False
+    tk = None
+    ttk = None
+    filedialog = None
+    messagebox = None
+    scrolledtext = None
 
 # Import modern UI components
 try:
@@ -2093,6 +2104,13 @@ Examples:
                         help='Automatically analyze after loading files')
     
     args = parser.parse_args()
+    
+    if not TKINTER_AVAILABLE:
+        print("Error: tkinter is not available. Please install tkinter to run the GUI.")
+        print("On Ubuntu/Debian: sudo apt-get install python3-tk")
+        print("On Fedora: sudo dnf install python3-tkinter")
+        print("On macOS: tkinter should be included with Python")
+        return 1
     
     root = tk.Tk()
     app = BinXrayGUI(root)
