@@ -187,6 +187,14 @@ Click "View → Show Node Details" to see:
 
 ## SDK-Specific Extensions
 
+Quick links (full details in SDK extensions guide):
+
+- [TI Processor SDK (Jacinto TDA4VM)](SDK_EXTENSIONS.md#ti-processor-sdk-jacinto-tda4vm)
+- [NXP S32K SDK](SDK_EXTENSIONS.md#nxp-s32k-sdk)
+- [Qualcomm Hexagon/SNPE](SDK_EXTENSIONS.md#qualcomm-hexagonsnpe)
+- [Custom Map File Formats](SDK_EXTENSIONS.md#custom-map-file-formats)
+- [Adding New Binary Tools](SDK_EXTENSIONS.md#adding-new-binary-tools)
+
 ### TI Processor SDK (Jacinto TDA4VM)
 
 TI map files have unique format quirks:

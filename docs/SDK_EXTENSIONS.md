@@ -4,15 +4,15 @@ This guide shows how to extend Bin-Xray to handle SDK-specific quirks and format
 
 ## Table of Contents
 
-1. [TI Processor SDK (Jacinto TDA4VM)](#ti-processor-sdk)
+1. [TI Processor SDK (Jacinto TDA4VM)](#ti-processor-sdk-jacinto-tda4vm)
 2. [NXP S32K SDK](#nxp-s32k-sdk)
-3. [Qualcomm Hexagon/SNPE](#qualcomm-hexagon)
-4. [Custom Map File Formats](#custom-map-formats)
-5. [Adding New Binary Tools](#adding-binary-tools)
+3. [Qualcomm Hexagon/SNPE](#qualcomm-hexagonsnpe)
+4. [Custom Map File Formats](#custom-map-file-formats)
+5. [Adding New Binary Tools](#adding-new-binary-tools)
 
 ---
 
-## TI Processor SDK (Jacinto TDA4VM) {#ti-processor-sdk}
+## TI Processor SDK (Jacinto TDA4VM)
 
 ### Map File Format Specifics
 
@@ -121,7 +121,7 @@ SDK Tools:  /opt/ti/ti-cgt-armllvm_2.1.0.LTS/bin/
 
 ---
 
-## NXP S32K SDK {#nxp-s32k-sdk}
+## NXP S32K SDK
 
 ### SDK Structure
 
@@ -224,7 +224,7 @@ def identify_nxp_modules(self, symbol_name: str) -> str:
 
 ---
 
-## Qualcomm Hexagon/SNPE {#qualcomm-hexagon}
+## Qualcomm Hexagon/SNPE
 
 ### SNPE (Snapdragon Neural Processing Engine)
 
@@ -295,7 +295,7 @@ def analyze_snpe_model(self, dlc_file: str) -> Dict:
 
 ---
 
-## Custom Map File Formats {#custom-map-formats}
+## Custom Map File Formats
 
 ### Adding a New Format
 
@@ -367,7 +367,7 @@ def parse_map_file(self, map_path: str) -> MapFileInfo:
 
 ---
 
-## Adding New Binary Tools {#adding-binary-tools}
+## Adding New Binary Tools
 
 ### Supporting Proprietary Analysis Tools
 

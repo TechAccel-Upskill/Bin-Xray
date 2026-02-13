@@ -64,7 +64,7 @@ Welcome to Bin-Xray! This file helps you navigate all the documentation.
 → See [QUICKSTART.md - First Analysis](QUICKSTART.md#first-analysis)
 
 #### ...configure TI Jacinto SDK tools
-→ See [SDK_EXTENSIONS.md - TI Processor SDK](SDK_EXTENSIONS.md#ti-processor-sdk)
+→ See [SDK_EXTENSIONS.md - TI Processor SDK](SDK_EXTENSIONS.md#ti-processor-sdk-jacinto-tda4vm)
 
 #### ...understand what tools are needed
 → See [TOOLS_REFERENCE.md - Required Tools](TOOLS_REFERENCE.md#required-tools)
@@ -192,7 +192,7 @@ Help menu in application:
 1. Configure SDK tools path
 2. Load application binary
 3. Graph shows actual dependencies
-→ See [SDK_EXTENSIONS.md - TI Jacinto](SDK_EXTENSIONS.md#ti-processor-sdk)
+→ See [SDK_EXTENSIONS.md - TI Jacinto](SDK_EXTENSIONS.md#ti-processor-sdk-jacinto-tda4vm)
 
 ### License Compliance Check
 1. Load with library directory

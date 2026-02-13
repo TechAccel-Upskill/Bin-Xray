@@ -25,6 +25,12 @@ Bin-Xray is a Python GUI tool that analyzes embedded binaries and linker map fil
 - User guide: [docs/README.md](docs/README.md)
 - Quickstart: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 - Tools reference: [docs/TOOLS_REFERENCE.md](docs/TOOLS_REFERENCE.md)
+- SDK extensions:
+	- [TI Processor SDK (Jacinto TDA4VM)](docs/SDK_EXTENSIONS.md#ti-processor-sdk-jacinto-tda4vm)
+	- [NXP S32K SDK](docs/SDK_EXTENSIONS.md#nxp-s32k-sdk)
+	- [Qualcomm Hexagon/SNPE](docs/SDK_EXTENSIONS.md#qualcomm-hexagonsnpe)
+	- [Custom Map File Formats](docs/SDK_EXTENSIONS.md#custom-map-file-formats)
+	- [Adding New Binary Tools](docs/SDK_EXTENSIONS.md#adding-new-binary-tools)
 
 ## Folder Structure
 
