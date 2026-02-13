@@ -1089,6 +1089,7 @@ class BinXrayGUI:
         self.dependency_text = self.ui.report_text
         self.progress = self.ui.progress
         self.generate_btn = self.ui.generate_btn
+        self._configure_report_text_widget()
     
     def _init_legacy_ui(self):
         """Initialize legacy UI."""
@@ -1168,6 +1169,52 @@ class BinXrayGUI:
         
         widget.bind('<Enter>', on_enter)
         widget.bind('<Leave>', on_leave)
+
+    def _configure_report_text_widget(self):
+        """Make the report text read-only but selectable/copyable."""
+        if not hasattr(self, 'dependency_text') or not self.dependency_text:
+            return
+
+        self.dependency_text.config(state=tk.NORMAL)
+        if getattr(self.dependency_text, '_readonly_configured', False):
+            return
+
+        def block_edit(event=None):
+            if event is None:
+                return 'break'
+            # Allow navigation and copy/select shortcuts while blocking edits.
+            if event.state & 0x4 and event.keysym.lower() in ('c', 'a'):
+                return
+            if event.keysym in ('Left', 'Right', 'Up', 'Down', 'Home', 'End', 'Prior', 'Next'):
+                return
+            return 'break'
+
+        self.dependency_text.bind('<Key>', block_edit)
+        self.dependency_text.bind('<<Paste>>', block_edit)
+        self.dependency_text.bind('<<Cut>>', block_edit)
+        self.dependency_text.bind('<Control-x>', block_edit)
+        self.dependency_text.bind('<Control-v>', block_edit)
+        self.dependency_text.bind('<Control-c>', self._copy_selected_text)
+        self.dependency_text.bind('<Control-C>', self._copy_selected_text)
+        self.dependency_text.bind('<<Copy>>', self._copy_selected_text)
+        self.dependency_text._readonly_configured = True
+
+    def _copy_selected_text(self, event=None):
+        """Copy selected text from the report widget to the clipboard."""
+        if not hasattr(self, 'dependency_text') or not self.dependency_text:
+            return 'break'
+
+        try:
+            selection = self.dependency_text.get(tk.SEL_FIRST, tk.SEL_LAST)
+        except tk.TclError:
+            return 'break'
+
+        self.root.clipboard_clear()
+        self.root.clipboard_append(selection)
+        if hasattr(self, 'ui'):
+            self.ui.set_status("Selection copied")
+            self.root.after(2000, lambda: self.ui.set_status("Ready"))
+        return 'break'
     
     def _save_config(self):
         """Save configuration to file."""
@@ -1321,7 +1368,7 @@ class BinXrayGUI:
                                    '  2. Map file (optional)\n' +
                                    '  3. Library directory (optional)\n\n' +
                                    'Then click "📊 Generate Report" or use --auto flag')
-        self.dependency_text.config(state=tk.DISABLED)
+        self._configure_report_text_widget()
         
         # === Signature Footer ===
         signature_frame = tk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
@@ -1501,7 +1548,11 @@ class BinXrayGUI:
         self.dependency_text.insert(tk.END, f"Build Score: {score:.1f}/100 ({grade})", 'header')
         score_color = 'used' if score >= 70 else 'unused'
         self.dependency_text.insert(tk.END, f" [{details['used_objects']}/{details['total_built_objects']} objects used]\n", score_color)
-        self.dependency_text.insert(tk.END, "═" * 80 + "\n\n", 'header')
+        self.dependency_text.insert(tk.END, "═" * 80 + "\n", 'header')
+        self.dependency_text.insert(tk.END, f"Detailed Summary of unused resources of {binary_name}\n", 'header')
+        self.dependency_text.insert(tk.END, "─" * 80 + "\n", 'count')
+        self.dependency_text.insert(tk.END, f"Unused libraries: {details['unused_libraries']}\n", 'unused')
+        self.dependency_text.insert(tk.END, f"Unused objects: {details['unused_objects']}\n\n", 'unused')
         
         # Collect libraries and objects
         libraries = {}
@@ -1554,13 +1605,13 @@ class BinXrayGUI:
                 f"Libraries: {total_static} total | ", 'count')
             self.dependency_text.insert(tk.END, f"{used_static} used", 'used')
             self.dependency_text.insert(tk.END, " | ", 'count')
-            self.dependency_text.insert(tk.END, f"{total_static - used_static} unused\n", 'unused')
+            self.dependency_text.insert(tk.END, f"{total_static - used_static} not used\n", 'unused')
             
             self.dependency_text.insert(tk.END, 
                 f"Objects: {total_objs} total | ", 'count')
             self.dependency_text.insert(tk.END, f"{used_objs} used", 'used')
             self.dependency_text.insert(tk.END, " | ", 'count')
-            self.dependency_text.insert(tk.END, f"{total_objs - used_objs} unused\n\n", 'unused')
+            self.dependency_text.insert(tk.END, f"{total_objs - used_objs} not used\n\n", 'unused')
             
             # Display static libraries and their objects
             for lib_name in sorted(libraries.keys()):
@@ -1604,7 +1655,7 @@ class BinXrayGUI:
                 f"Total: {len(shared_libs)} | ", 'count')
             self.dependency_text.insert(tk.END, f"{used_count} used", 'used')
             self.dependency_text.insert(tk.END, " | ", 'count')
-            self.dependency_text.insert(tk.END, f"{len(shared_libs) - used_count} unused\n\n", 'unused')
+            self.dependency_text.insert(tk.END, f"{len(shared_libs) - used_count} not used\n\n", 'unused')
             
             for lib, is_unused in sorted(shared_libs):
                 if is_unused:
@@ -1675,7 +1726,7 @@ class BinXrayGUI:
         self.dependency_text.insert(tk.END, "✓ = Used (green)  ", 'used')
         self.dependency_text.insert(tk.END, "✗ = Unused (red)\n", 'unused')
         
-        self.dependency_text.config(state=tk.DISABLED)
+        self._configure_report_text_widget()
         self.dependency_text.yview_moveto(0)
     
     def _update_unused_panel(self):
