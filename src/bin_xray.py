@@ -18,7 +18,6 @@ from tkinter import ttk, filedialog, messagebox, scrolledtext
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional, Any
 from dataclasses import dataclass, field
-from collections import defaultdict
 import json
 import platform
 
@@ -386,7 +385,6 @@ class MapFileParser:
         
         # Parse memory regions
         in_memory_config = False
-        in_linker_script = False
         in_cross_ref = False
         
         for i, line in enumerate(lines):

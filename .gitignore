@@ -22,6 +22,8 @@ ENV/
 *.swp
 *.swo
 *~
+*.backup
+*.bak
 
 # OS
 .DS_Store

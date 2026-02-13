@@ -77,7 +77,6 @@ PAGE = """
   <style>
         :root {
             --bg: #0b1020;
-            --bg-soft: #131a2f;
             --card: #ffffff;
             --muted: #64748b;
             --text: #0f172a;
@@ -161,9 +160,11 @@ PAGE = """
             min-height: 100vh;
         }
         .wrap {
-            max-width: 1080px;
-            margin: 0 auto;
-            padding: 24px 16px 36px;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 24px 24px 36px;
+            min-height: 100vh;
         }
         .hero {
             background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
@@ -186,7 +187,6 @@ PAGE = """
             gap: 8px;
         }
         .hero h2 { margin: 0; font-size: 22px; }
-        .hero p { margin: 0; color: #cbd5e1; }
         .hero-info-btn {
             border-color: rgba(148, 163, 184, 0.45);
             background: rgba(15, 23, 42, 0.45);
@@ -239,6 +239,47 @@ PAGE = """
             margin-bottom: 14px;
             border: 1px solid var(--border);
             box-shadow: var(--card-shadow);
+        }
+        .top-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: stretch;
+            margin-bottom: 14px;
+        }
+        .analysis-card {
+            margin-bottom: 0;
+            height: 100%;
+        }
+        .profile-card {
+            margin-bottom: 0;
+            text-align: left;
+            height: 100%;
+        }
+        .profile-photo-placeholder {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1 / 1;
+            margin: 8px 0 12px;
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            background: var(--metric-bg);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .profile-photo {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1 / 1;
+            margin: 8px 0 12px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--border);
+            display: block;
         }
         .section-title {
             margin: 0 0 10px;
@@ -334,7 +375,11 @@ PAGE = """
         }
         .metric .k { font-size: 12px; color: var(--muted); }
         .metric .v { font-size: 18px; font-weight: 700; margin-top: 4px; }
-        .score { color: var(--ok); }
+        .score-bad { color: #ef4444; }
+        .score-poor { color: #f97316; }
+        .score-fair { color: #eab308; }
+        .score-good { color: #22c55e; }
+        .score-excellent { color: #10b981; }
         .metric-head {
             display: flex;
             align-items: center;
@@ -395,23 +440,28 @@ PAGE = """
             margin-bottom: 3px;
             word-break: break-word;
         }
-            .author-card {
-                text-align: center;
-                color: var(--author-text);
-                font-size: 14px;
-                background: linear-gradient(135deg, var(--author-bg-start), var(--author-bg-end));
-                border: 1px solid var(--author-border);
-            }
-            .author-label {
+            .about-title {
                 font-weight: 700;
-                margin-bottom: 4px;
+                margin-bottom: 8px;
                 color: var(--author-text);
+                font-size: 15px;
             }
-            .author-name {
-                font-weight: 600;
-                margin-bottom: 6px;
+            .about-text {
+                text-align: left;
                 color: var(--author-text);
+                font-size: 13px;
+                line-height: 1.5;
+                margin-bottom: 10px;
             }
+            .about-list {
+                text-align: left;
+                margin: 0 0 10px;
+                padding-left: 18px;
+                color: var(--author-text);
+                font-size: 13px;
+                line-height: 1.45;
+            }
+            .about-list li { margin-bottom: 4px; }
             .author-link {
                 color: var(--brand-2);
                 text-decoration: none;
@@ -420,6 +470,7 @@ PAGE = """
         @media (max-width: 900px) {
             .metrics { grid-template-columns: 1fr 1fr; }
             .field-grid, .row { grid-template-columns: 1fr; }
+            .top-layout { grid-template-columns: 1fr; }
         }
   </style>
 </head>
@@ -437,7 +488,8 @@ PAGE = """
                 </div>
             </div>
         </div>
-        <div class=\"card\">
+        <div class=\"top-layout\">
+        <div class=\"card analysis-card\">
             <div class=\"section-head\">
                 <h3 class=\"section-title\">Analysis Inputs</h3>
                 <button type=\"button\" class=\"info-btn\" title=\"About this tool\" onclick=\"showBinXrayInfo()\">i</button>
@@ -492,6 +544,36 @@ PAGE = """
                 </div>
             </form>
         </div>
+        <div class=\"card profile-card\">
+            <h3 class="section-title">About Me</h3>
+            <img class=\"profile-photo\" src=\"{{ url_for('static', filename='profile.png') }}\" alt=\"Vinod Kumar Neelakantam\" onerror=\"this.style.display='none'; this.nextElementSibling.style.display='flex';\" />
+            <div class=\"profile-photo-placeholder\" style=\"display:none;\">Place image at static/profile.png</div>
+            <div class="about-text">
+                I am Vinod Kumar Neelakantam, an accomplished engineering professional with over 12 years of progressive experience in embedded systems, software integration, release management, and DevOps. With a Master’s degree in Embedded &amp; VLSI Design Systems and a Certified ISTQB Tester credential, I bring a robust technical foundation and a collaborative approach to driving innovation. My diversified roles in embedded systems over a decade position me as a strong candidate in the AI era, and I am eager to contribute my expertise to your organization.
+            </div>
+            <div class="about-title">Embedded Trainer</div>
+            <ul class="about-list">
+                <li>Educated engineers on 8/16 microcontroller architectures, I/O, and peripheral design.</li>
+                <li>Transformed student concepts into prototypes, bridging academia and industry.</li>
+                <li>Built application and device drivers (UART, I2C, SPI, CAN) using C, C++, and assembly for hardware integration.</li>
+            </ul>
+            <div class="about-title">Software Integrator &amp; Release Manager</div>
+            <ul class="about-list">
+                <li>Validated architectural components with test-driven development (TDD).</li>
+                <li>Developed integration procedures, smoke tests, and configuration documents.</li>
+                <li>Coordinated global release chains across teams, aligning with project goals.</li>
+                <li>Led ASPICE audits, achieving top ratings, and conducted GAP analysis for third-party assessments.</li>
+            </ul>
+            <div class="about-title">DevOps Platform Engineer</div>
+            <ul class="about-list">
+                <li>Designed automated toolchains for product life cycles, leveraging embedded expertise and ASPICE standards.</li>
+            </ul>
+            <div class="about-text">
+                My career began as an Embedded Trainer, establishing a foundation in microcontroller systems. I then advanced to developing embedded software, mastering device drivers and hardware integration. As a Software Integrator, I focused on testing and documentation for quality assurance. Progressing to Release Manager, I managed global releases with ASPICE compliance. Now, as a DevOps Engineer, I create seamless CI/CD pipelines, optimizing workflows for the AI-driven future.
+            </div>
+            <a class=\"author-link\" href=\"https://www.linkedin.com/in/vinodneelakantam\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.linkedin.com/in/vinodneelakantam</a>
+        </div>
+        </div>
 
   {% if error %}
         <div class=\"card\"><div class=\"error\">{{ error }}</div></div>
@@ -515,13 +597,13 @@ PAGE = """
                     </div>
                     <div class=\"v\">{{ result.edges }}</div>
                 </div>
-                <div class=\"metric\"><div class=\"k\">Build Score</div><div class=\"v score\">{{ result.score }}</div></div>
+                <div class=\"metric\"><div class=\"k\">Build Score</div><div class=\"v score-{{ result.score_level }}\">{{ result.score }}</div></div>
                 <div class=\"metric\">
                     <div class=\"metric-head\">
                         <div class=\"k\">Grade</div>
                         <button type=\"button\" class=\"info-btn\" title=\"How grade is calculated\" onclick=\"showGradeInfo()\">i</button>
                     </div>
-                    <div class=\"v\">{{ result.grade_short }}</div>
+                    <div class=\"v score-{{ result.score_level }}\">{{ result.grade_short }}</div>
                 </div>
             </div>
             <div class=\"info-note\">
@@ -573,11 +655,6 @@ PAGE = """
         </div>
   {% endif %}
 
-            <div class="card author-card">
-                <div class="author-label">Author:</div>
-                <div class="author-name">Vinod Kumar Neelakantam</div>
-                <a class="author-link" href="https://www.linkedin.com/in/vinodneelakantam" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/vinodneelakantam</a>
-            </div>
     </div>
 </body>
 <script>
@@ -750,6 +827,17 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
     score, grade, details = builder.get_build_efficiency_score()
     unused = builder.get_unused_summary()
 
+    if score >= 95:
+        score_level = "excellent"
+    elif score >= 80:
+        score_level = "good"
+    elif score >= 70:
+        score_level = "fair"
+    elif score >= 60:
+        score_level = "poor"
+    else:
+        score_level = "bad"
+
     used_libraries = sorted(
         node for node, node_type in builder.node_types.items()
         if node_type in {"library", "static_lib", "shared_lib"} and node not in builder.unused_libraries
@@ -777,23 +865,12 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
     used_objects = [_format_object_name(item) for item in used_objects]
     unused_objects_formatted = [_format_object_name(item) for item in unused["unused_objects"]]
 
-    unused_lines = ["Unused Libraries:"]
-    if unused["unused_libraries"]:
-        unused_lines.extend(f"- {item}" for item in unused["unused_libraries"])
-    else:
-        unused_lines.append("- None")
-    unused_lines.append("")
-    unused_lines.append("Unused Objects:")
-    if unused_objects_formatted:
-        unused_lines.extend(f"- {item}" for item in unused_objects_formatted)
-    else:
-        unused_lines.append("- None")
-
     return {
         "binary_name": binary_display_name,
         "nodes": graph.number_of_nodes(),
         "edges": graph.number_of_edges(),
         "score": score,
+        "score_level": score_level,
         "grade_short": grade.split(" ", 1)[0],
         "grade": grade,
         "details": details,
@@ -809,7 +886,6 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
                 "unused": unused_objects_formatted,
             },
         ],
-        "unused_text": "\n".join(unused_lines),
     }
 
 
