@@ -17,7 +17,6 @@ ENV/
 !.venv/**
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -32,6 +31,8 @@ Thumbs.db
 # Application-specific
 *.graphml
 *.png
+!static/*.png
+!static/**/*.png
 *.svg
 dependency_graph.*
 ~/.binxray_config.json
