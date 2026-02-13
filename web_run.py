@@ -247,14 +247,85 @@ PAGE = """
             align-items: stretch;
             margin-bottom: 14px;
         }
+        .top-layout.fold-about {
+            grid-template-columns: 1fr;
+        }
+        .top-layout.fold-about .profile-card {
+            display: block;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
         .analysis-card {
             margin-bottom: 0;
             height: 100%;
+            padding: 14px;
         }
         .profile-card {
             margin-bottom: 0;
             text-align: left;
             height: 100%;
+            padding: 14px;
+        }
+        .profile-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .profile-head .section-title {
+            margin: 0;
+        }
+        .panel-toggle-btn {
+            border: 1px solid var(--input-border);
+            border-radius: 999px;
+            background: var(--input-bg);
+            color: var(--input-text);
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel-toggle-btn::before {
+            content: '▾';
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+        .panel-toggle-btn.is-collapsed::before {
+            transform: rotate(-90deg);
+        }
+        .panel-toggle-btn:hover {
+            background: var(--metric-bg);
+            filter: none;
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .collapsible-head {
+            cursor: pointer;
+            user-select: none;
+        }
+        .card-head .section-title {
+            margin: 0;
+        }
+        .collapsed-body {
+            display: none;
+        }
+        .top-layout.fold-about .profile-head {
+            margin-bottom: 0;
+        }
+        .top-layout.fold-about .profile-body {
+            display: none;
         }
         .profile-photo-placeholder {
             width: 100%;
@@ -282,16 +353,16 @@ PAGE = """
             display: block;
         }
         .section-title {
-            margin: 0 0 10px;
-            font-size: 16px;
+            margin: 0 0 8px;
+            font-size: 15px;
             color: var(--text);
         }
         .section-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         .section-head .section-title {
             margin: 0;
@@ -299,26 +370,27 @@ PAGE = """
         .field-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
         .field-full { grid-column: 1 / -1; }
         label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--label);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .hint {
-            margin-top: 5px;
-            font-size: 12px;
+            margin-top: 4px;
+            font-size: 11px;
             color: var(--muted);
         }
         input[type=text], input[type=number], input[type=file], select {
             width: 100%;
             border: 1px solid var(--input-border);
-            border-radius: 10px;
-            padding: 10px 11px;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
             background: var(--input-bg);
             color: var(--input-text);
         }
@@ -331,21 +403,22 @@ PAGE = """
         .toggle {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
+            margin-top: 6px;
             color: var(--label);
-            font-size: 14px;
+            font-size: 13px;
         }
         .actions {
             display: flex;
             gap: 10px;
             align-items: center;
-            margin-top: 14px;
+            margin-top: 10px;
         }
         button {
             border: 0;
-            border-radius: 10px;
-            padding: 10px 16px;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #fff;
             background: linear-gradient(135deg, var(--brand), var(--brand-2));
@@ -442,29 +515,30 @@ PAGE = """
         }
             .about-title {
                 font-weight: 700;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
                 color: var(--author-text);
-                font-size: 15px;
+                font-size: 14px;
             }
             .about-text {
                 text-align: left;
                 color: var(--author-text);
-                font-size: 13px;
-                line-height: 1.5;
-                margin-bottom: 10px;
+                font-size: 12px;
+                line-height: 1.4;
+                margin-bottom: 8px;
             }
             .about-list {
                 text-align: left;
-                margin: 0 0 10px;
+                margin: 0 0 8px;
                 padding-left: 18px;
                 color: var(--author-text);
-                font-size: 13px;
-                line-height: 1.45;
+                font-size: 12px;
+                line-height: 1.35;
             }
-            .about-list li { margin-bottom: 4px; }
+            .about-list li { margin-bottom: 3px; }
             .author-link {
                 color: var(--brand-2);
                 text-decoration: none;
+                font-size: 12px;
             }
             .author-link:hover { text-decoration: underline; }
         @media (max-width: 900px) {
@@ -494,7 +568,7 @@ PAGE = """
                 <h3 class=\"section-title\">Analysis Inputs</h3>
                 <button type=\"button\" class=\"info-btn\" title=\"About this tool\" onclick=\"showBinXrayInfo()\">i</button>
             </div>
-            <form method=\"post\" action=\"/analyze\">
+            <form id=\"analyzeForm\" method=\"post\" action=\"/analyze\">
                 <div class=\"field-grid\">
                     <div class=\"field-full\">
                         <label>Preset Configuration</label>
@@ -540,12 +614,16 @@ PAGE = """
                 </label>
 
                 <div class=\"actions\">
-                    <button type=\"submit\">Analyze Dependency Graph</button>
+                    <button type=\"submit\">Generate Bin-Xray</button>
                 </div>
             </form>
         </div>
         <div class=\"card profile-card\">
-            <h3 class="section-title">About Me</h3>
+            <div id="aboutHead" class="profile-head collapsible-head">
+                <h3 class="section-title">About Me</h3>
+                <button id="aboutToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleAboutMeFold()" aria-expanded="true" aria-label="Toggle About Me"></button>
+            </div>
+            <div class="profile-body">
             <img class=\"profile-photo\" src=\"{{ url_for('static', filename='profile.png') }}\" alt=\"Vinod Kumar Neelakantam\" onerror=\"this.style.display='none'; this.nextElementSibling.style.display='flex';\" />
             <div class=\"profile-photo-placeholder\" style=\"display:none;\">Place image at static/profile.png</div>
             <div class="about-text">
@@ -572,6 +650,7 @@ PAGE = """
                 My career began as an Embedded Trainer, establishing a foundation in microcontroller systems. I then advanced to developing embedded software, mastering device drivers and hardware integration. As a Software Integrator, I focused on testing and documentation for quality assurance. Progressing to Release Manager, I managed global releases with ASPICE compliance. Now, as a DevOps Engineer, I create seamless CI/CD pipelines, optimizing workflows for the AI-driven future.
             </div>
             <a class=\"author-link\" href=\"https://www.linkedin.com/in/vinodneelakantam\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.linkedin.com/in/vinodneelakantam</a>
+            </div>
         </div>
         </div>
 
@@ -581,7 +660,11 @@ PAGE = """
 
   {% if result %}
         <div class=\"card\">
-            <h3 class=\"section-title\">Summary for {{ result.binary_name }}</h3>
+            <div id="summaryHead" class="card-head collapsible-head">
+                <h3 class=\"section-title\">Summary for {{ result.binary_name }}</h3>
+                <button id="summaryToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('summaryBody','summaryToggleBtn','binxray-collapse-summary')" aria-expanded="true" aria-label="Toggle Summary"></button>
+            </div>
+            <div id="summaryBody">
             <div class=\"metrics\">
                 <div class=\"metric\">
                     <div class=\"metric-head\">
@@ -614,10 +697,15 @@ PAGE = """
                 <tr><td>Objects</td><td>{{ result.details.used_objects }} / {{ result.details.total_built_objects }}</td></tr>
                 <tr><td>Libraries</td><td>{{ result.details.used_libraries }} / {{ result.details.total_built_libraries }}</td></tr>
             </table>
+            </div>
         </div>
 
         <div class=\"card\">
-            <h3 class=\"section-title\">Detailed Summary for {{ result.binary_name }}</h3>
+            <div id="detailedHead" class="card-head collapsible-head">
+                <h3 class=\"section-title\">Detailed Summary for {{ result.binary_name }}</h3>
+                <button id="detailedToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('detailedBody','detailedToggleBtn','binxray-collapse-detailed')" aria-expanded="true" aria-label="Toggle Detailed Summary"></button>
+            </div>
+            <div id="detailedBody">
             <table>
                 <tr><th>Component Type</th><th>Used</th><th>Unused</th></tr>
                 {% for row in result.component_rows %}
@@ -652,6 +740,7 @@ PAGE = """
                 </tr>
                 {% endfor %}
             </table>
+            </div>
         </div>
   {% endif %}
 
@@ -659,6 +748,7 @@ PAGE = """
 </body>
 <script>
     const presetData = {{ preset_data | tojson }};
+    const hasResult = {{ 'true' if result else 'false' }};
 
     function showGradeInfo() {
         const gradeGuide = [
@@ -729,6 +819,67 @@ PAGE = """
         setTheme(prefersDark ? 'dark' : 'light');
     }
 
+    function applyAboutMeFold() {
+        const topLayout = document.querySelector('.top-layout');
+        if (!topLayout) return;
+
+        const foldRequested = localStorage.getItem('binxray-fold-about') === '1';
+        const shouldFold = Boolean(foldRequested && hasResult);
+        topLayout.classList.toggle('fold-about', shouldFold);
+
+        const aboutToggleBtn = document.getElementById('aboutToggleBtn');
+        updateToggleButtonState(aboutToggleBtn, shouldFold);
+
+        if (!hasResult) {
+            localStorage.removeItem('binxray-fold-about');
+        }
+    }
+
+    function toggleAboutMeFold() {
+        const topLayout = document.querySelector('.top-layout');
+        if (!topLayout) return;
+
+        const isFolded = topLayout.classList.contains('fold-about');
+        localStorage.setItem('binxray-fold-about', isFolded ? '0' : '1');
+        applyAboutMeFold();
+    }
+
+    function updateToggleButtonState(toggleButton, isCollapsed) {
+        if (!toggleButton) return;
+        toggleButton.classList.toggle('is-collapsed', isCollapsed);
+        toggleButton.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+    }
+
+    function updateSectionToggleButton(buttonId, isCollapsed) {
+        const toggleButton = document.getElementById(buttonId);
+        updateToggleButtonState(toggleButton, isCollapsed);
+    }
+
+    function toggleSectionBody(bodyId, buttonId, storageKey) {
+        const sectionBody = document.getElementById(bodyId);
+        if (!sectionBody) return;
+
+        const isCollapsed = sectionBody.classList.toggle('collapsed-body');
+        localStorage.setItem(storageKey, isCollapsed ? '1' : '0');
+        updateSectionToggleButton(buttonId, isCollapsed);
+    }
+
+    function initializeResultSectionToggles() {
+        const sections = [
+            { bodyId: 'summaryBody', buttonId: 'summaryToggleBtn', key: 'binxray-collapse-summary' },
+            { bodyId: 'detailedBody', buttonId: 'detailedToggleBtn', key: 'binxray-collapse-detailed' },
+        ];
+
+        sections.forEach((section) => {
+            const sectionBody = document.getElementById(section.bodyId);
+            if (!sectionBody) return;
+
+            const shouldCollapse = localStorage.getItem(section.key) === '1';
+            sectionBody.classList.toggle('collapsed-body', shouldCollapse);
+            updateSectionToggleButton(section.buttonId, shouldCollapse);
+        });
+    }
+
     function applyPresetToForm(presetName) {
         if (!presetName || !presetData[presetName]) {
             return;
@@ -752,6 +903,31 @@ PAGE = """
 
     document.addEventListener('DOMContentLoaded', () => {
         initializeTheme();
+        applyAboutMeFold();
+        initializeResultSectionToggles();
+
+        const bindHeadToggle = (headId, toggleFn) => {
+            const head = document.getElementById(headId);
+            if (!head) return;
+            head.addEventListener('click', (event) => {
+                if (event.target instanceof HTMLElement && event.target.closest('button')) {
+                    return;
+                }
+                toggleFn();
+            });
+        };
+
+        bindHeadToggle('aboutHead', toggleAboutMeFold);
+        bindHeadToggle('summaryHead', () => toggleSectionBody('summaryBody','summaryToggleBtn','binxray-collapse-summary'));
+        bindHeadToggle('detailedHead', () => toggleSectionBody('detailedBody','detailedToggleBtn','binxray-collapse-detailed'));
+
+        const analyzeForm = document.getElementById('analyzeForm');
+        if (analyzeForm) {
+            analyzeForm.addEventListener('submit', () => {
+                localStorage.setItem('binxray-fold-about', '1');
+            });
+        }
+
         const presetSelect = document.getElementById('presetSelect');
         if (presetSelect) {
             presetSelect.addEventListener('change', (event) => {
@@ -847,23 +1023,76 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
         if node_type == "object" and node not in builder.unused_objects
     )
 
-    def _format_object_name(name: str) -> str:
+    source_index: Dict[str, list[Path]] = {}
+    source_extensions = {".c", ".cc", ".cpp", ".cxx", ".s", ".S", ".asm"}
+    if lib_dir:
+        try:
+            lib_root = Path(lib_dir)
+            if lib_root.is_dir():
+                for path in lib_root.rglob("*"):
+                    if path.is_file() and path.suffix in source_extensions:
+                        source_index.setdefault(path.stem, []).append(path)
+        except Exception:
+            source_index = {}
+
+    def _extract_object_name(name: str) -> Optional[str]:
         if ":" in name:
             lib_name, obj_name = name.split(":", 1)
             if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
-                return f"{lib_name} --> {obj_name}"
+                return Path(obj_name.strip()).name
 
         if "(" in name:
             left, right = name.rsplit("(", 1)
             lib_name = left.strip()
             obj_name = right.rstrip(")").strip()
             if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
-                return f"{lib_name} --> {obj_name}"
+                return Path(obj_name).name
 
-        return name
+        file_name = Path(name.strip()).name
+        if file_name.endswith((".o", ".obj")):
+            return file_name
+
+        return None
+
+    def _resolve_source_for_object(name: str) -> Optional[str]:
+        object_name = _extract_object_name(name)
+        if not object_name:
+            return None
+
+        stem = Path(object_name).stem
+        candidates = source_index.get(stem, [])
+        if candidates:
+            best = min(candidates, key=lambda p: (len(p.parts), len(str(p))))
+            try:
+                return str(best.relative_to(Path(lib_dir)))
+            except Exception:
+                return str(best)
+
+        return f"{stem}.c"
+
+    def _format_object_name(name: str, include_source: bool = False) -> str:
+        formatted_name = name
+        if ":" in name:
+            lib_name, obj_name = name.split(":", 1)
+            if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
+                formatted_name = f"{lib_name} --> {obj_name}"
+
+        elif "(" in name:
+            left, right = name.rsplit("(", 1)
+            lib_name = left.strip()
+            obj_name = right.rstrip(")").strip()
+            if lib_name.endswith((".a", ".so", ".dll")) and obj_name:
+                formatted_name = f"{lib_name} --> {obj_name}"
+
+        if include_source:
+            source_file = _resolve_source_for_object(name)
+            if source_file:
+                return f"{formatted_name} --> {source_file}"
+
+        return formatted_name
 
     used_objects = [_format_object_name(item) for item in used_objects]
-    unused_objects_formatted = [_format_object_name(item) for item in unused["unused_objects"]]
+    unused_objects_formatted = [_format_object_name(item, include_source=True) for item in unused["unused_objects"]]
 
     return {
         "binary_name": binary_display_name,
