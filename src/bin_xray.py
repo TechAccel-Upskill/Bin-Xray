@@ -45,17 +45,23 @@ def is_linker_artifact(name: str) -> bool:
     """Check if a name is a linker script artifact, not a real file."""
     if not name:
         return True
+
+    token = name.strip().rstrip(',;')
     
     # Linker script wildcards and patterns
-    if name.startswith('*'):  # *(.text), *(.data), etc.
+    if token.startswith('*'):  # *(.text), *(.data), etc.
         return True
-    if name in ['*', '*(', '*)', '.']:  # Pure wildcards
+    if token in ['*', '*(', '*)', '.']:  # Pure wildcards
         return True
-    if name.startswith('PROVIDE'):  # PROVIDE symbols
+    if token.startswith('PROVIDE'):  # PROVIDE symbols
         return True
-    if name.startswith('HIDDEN'):  # HIDDEN symbols
+    if token.startswith('HIDDEN'):  # HIDDEN symbols
         return True
-    if re.match(r'^\*\(\.[\w.]+\)$', name):  # *(.section)
+    if token.startswith('EXCLUDE_FILE('):  # EXCLUDE_FILE(*crtend?.o)
+        return True
+    if re.match(r'^\*\(\.[\w.]+\)$', token):  # *(.section)
+        return True
+    if re.search(r'[\*\?][^\s]*\.o(?:bj)?\)?$', token):  # *crtend?.o / wildcard object specs
         return True
     
     # Linker-generated symbols
@@ -65,7 +71,7 @@ def is_linker_artifact(name: str) -> bool:
         '__init_array_start', '__init_array_end',
         '__fini_array_start', '__fini_array_end'
     ]
-    if name in linker_symbols:
+    if token in linker_symbols:
         return True
     
     return False
@@ -482,6 +488,8 @@ class MapFileParser:
             if match:
                 section, addr, size, source = match.groups()
                 if source and source.endswith(('.o', '.obj', '.a')):
+                    if is_linker_artifact(source):
+                        continue
                     if section not in info.section_map:
                         info.section_map[section] = []
                     if source not in info.section_map[section]:
@@ -511,6 +519,8 @@ class MapFileParser:
                 match = re.match(r'\s*(\.[\w.]+)\s+(0x[0-9a-f]+)\s+(0x[0-9a-f]+)\s+(\S+)', line, re.IGNORECASE)
                 if match:
                     section, addr, size, obj_file = match.groups()
+                    if is_linker_artifact(obj_file):
+                        continue
                     if section not in info.section_map:
                         info.section_map[section] = []
                     info.section_map[section].append(obj_file)
@@ -533,6 +543,8 @@ class MapFileParser:
             obj_match = re.search(r'(\S+\.o(?:bj)?|\S+\.a)', line)
             if obj_match:
                 obj_file = obj_match.group(1)
+                if is_linker_artifact(obj_file):
+                    continue
                 # Associate with the last seen section
                 if info.section_map:
                     last_section = list(info.section_map.keys())[-1]
