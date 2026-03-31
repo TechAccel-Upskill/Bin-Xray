@@ -15,10 +15,23 @@ Bin-Xray is a Python GUI tool that analyzes embedded binaries and linker map fil
 	```bash
 	pip install -r requirements.txt
 	```
-2. Run the app:
+2. Run the app locally:
 	```bash
 	python run.py
 	```
+
+## Deploy on Vercel
+
+1. Ensure `vercel` CLI is installed and logged in.
+2. Deploy from repository root:
+	```bash
+	vercel --prod
+	```
+
+The repository now includes:
+- `api/index.py` (WSGI handler for Flask app)
+- `vercel.json` (Vercel routing and Python runtime)
+- `requirements.txt` (Flask and dependencies)
 
 ## Documentation
 
