@@ -50,10 +50,10 @@ def _is_vercel_deployment() -> bool:
 
 
 def _load_presets() -> Dict[str, Dict[str, Any]]:
-    """Load analysis presets. 
+    """Load analysis presets.
     
-    On Vercel: Uses only demo presets with (Demo) tag
-    Locally: Uses both demo and full test suite presets
+    Loads only presets where the required binary/map files exist.
+    This ensures the same presets are available in both local and Vercel.
     """
     if not PRESETS_FILE.exists():
         return {}
@@ -65,19 +65,9 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         return {}
 
     presets: Dict[str, Dict[str, Any]] = {}
-    is_vercel = _is_vercel_deployment()
-    has_test_binaries = (ROOT / "test_binaries").exists()
     
     for name, preset in raw.items():
         if not isinstance(preset, dict):
-            continue
-        
-        # On Vercel: only load demo presets
-        if is_vercel and "(Demo)" not in name:
-            continue
-        
-        # Locally without test_binaries: only load demo presets
-        if not has_test_binaries and "(Demo)" not in name:
             continue
         
         # Resolve paths

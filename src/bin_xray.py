@@ -421,9 +421,18 @@ class MapFileParser:
                 in_cross_ref = True
                 continue
             elif in_cross_ref and line.strip() == '':
-                in_cross_ref = False
+                # Check if this is the blank line after the header, skip it
+                if i + 1 < len(lines) and lines[i + 1].startswith('Symbol'):
+                    # Skip header line, continue parsing
+                    continue
+                else:
+                    in_cross_ref = False
             
-            if in_cross_ref:
+            # Skip header line
+            if in_cross_ref and line.startswith('Symbol') and 'File' in line:
+                continue
+            
+            if in_cross_ref and line.strip():
                 # Parse symbol cross references
                 self._parse_cross_ref_line(line, info)
             
