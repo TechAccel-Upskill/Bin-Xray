@@ -58,9 +58,23 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
     for name, preset in raw.items():
         if not isinstance(preset, dict):
             continue
+        
+        # Resolve paths
+        binary_path = _replace_workspace_var(preset.get("binary"))
+        map_path = _replace_workspace_var(preset.get("map"))
+        libdir_path = _replace_workspace_var(preset.get("libdir"))
+        
+        # Only include preset if at least one required file exists (or if running locally with test binaries)
+        # Note: Vercel deployments exclude test_binaries/ - users must upload files there
+        has_binary = binary_path and Path(binary_path).exists()
+        has_map = map_path and Path(map_path).exists()
+        
+        if not (has_binary or has_map):
+            continue  # Skip presets with missing files (e.g., on Vercel)
+        
         presets[name] = {
-            "binary": _replace_workspace_var(preset.get("binary")),
-            "map": _replace_workspace_var(preset.get("map")),
+            "binary": binary_path,
+            "map": map_path,
             "libdir": _replace_workspace_var(preset.get("libdir")),
             "sdk_tools": _replace_workspace_var(preset.get("sdk_tools")),
             "depth": preset.get("depth", 5),
@@ -629,7 +643,7 @@ PAGE = """
                             <option value=\"{{ preset_name }}\" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
                             {% endfor %}
                         </select>
-                        <div class=\"hint\">Choose a preset to load binary/map/lib settings by name.</div>
+                        <div class=\"hint\">Choose a preset to load settings. {% if preset_options|length == 0 %}No presets available (test binaries not deployed).{% else %}Select a preset or manually enter paths below.{% endif %}</div>
                     </div>
 
                     <div class=\"field-full\">

@@ -10,4 +10,5 @@ __pycache__
 docs/
 examples/
 scripts/
+test_binaries/
 
