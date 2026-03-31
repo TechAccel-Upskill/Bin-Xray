@@ -11,6 +11,12 @@
     "show_symbols": true,
     "auto": true
   },
+  "ADAS Camera (Demo)": {
+    "binary": "${workspaceFolder}/static/demo_binaries/adas_camera.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/adas_camera.map",
+    "show_symbols": true,
+    "auto": true
+  },
   "ADAS Camera": {
     "binary": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.elf",
     "map": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.map",
@@ -26,6 +32,12 @@
   "Multi-Module Test": {
     "binary": "${workspaceFolder}/test_binaries/multi/main",
     "libdir": "${workspaceFolder}/test_binaries/libs/",
+    "auto": true
+  },
+  "Lua Real-World (Demo)": {
+    "binary": "${workspaceFolder}/static/demo_binaries/lua_real_world",
+    "map": "${workspaceFolder}/static/demo_binaries/lua_real_world.map",
+    "show_symbols": true,
     "auto": true
   },
   "Lua Real-World": {

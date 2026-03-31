@@ -52,8 +52,8 @@ def _is_vercel_deployment() -> bool:
 def _load_presets() -> Dict[str, Dict[str, Any]]:
     """Load analysis presets. 
     
-    On Vercel: Uses demo_binaries/ (small binaries for demo)
-    Locally: Uses test_binaries/ (full test suite)
+    On Vercel: Uses only demo presets with (Demo) tag
+    Locally: Uses both demo and full test suite presets
     """
     if not PRESETS_FILE.exists():
         return {}
@@ -68,31 +68,21 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
     is_vercel = _is_vercel_deployment()
     has_test_binaries = (ROOT / "test_binaries").exists()
     
-    # On Vercel without test_binaries, use demo presets instead
-    use_demo = is_vercel or not has_test_binaries
-    
     for name, preset in raw.items():
         if not isinstance(preset, dict):
+            continue
+        
+        # On Vercel: only load demo presets
+        if is_vercel and "(Demo)" not in name:
+            continue
+        
+        # Locally without test_binaries: only load demo presets
+        if not has_test_binaries and "(Demo)" not in name:
             continue
         
         # Resolve paths
         binary_path = _replace_workspace_var(preset.get("binary"))
         map_path = _replace_workspace_var(preset.get("map"))
-        
-        # If demo mode and files don't exist, try demo_binaries folder
-        if use_demo and not Path(binary_path).exists():
-            # Try to find demo version
-            demo_binary = ROOT / "static" / "demo_binaries" / Path(binary_path).name
-            if demo_binary.exists():
-                binary_path = str(demo_binary)
-                # Also look for demo map file
-                demo_map = ROOT / "static" / "demo_binaries" / Path(map_path).name if map_path else None
-                if demo_map and demo_map.exists():
-                    map_path = str(demo_map)
-                else:
-                    map_path = ""
-            else:
-                continue  # Skip if no demo version available
         
         # Only include preset if required files exist
         has_binary = binary_path and Path(binary_path).exists()
@@ -104,7 +94,7 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         presets[name] = {
             "binary": binary_path,
             "map": map_path,
-            "libdir": _replace_workspace_var(preset.get("libdir")) if not use_demo else "",
+            "libdir": _replace_workspace_var(preset.get("libdir")),
             "sdk_tools": _replace_workspace_var(preset.get("sdk_tools")),
             "depth": preset.get("depth", 5),
             "show_symbols": bool(preset.get("show_symbols", False))
