@@ -44,7 +44,17 @@ def _replace_workspace_var(value: Optional[str]) -> str:
     return value.replace('${workspaceFolder}', str(ROOT))
 
 
+def _is_vercel_deployment() -> bool:
+    """Check if running on Vercel"""
+    return os.getenv("VERCEL") == "1" or os.getenv("VERCEL_ENV") is not None
+
+
 def _load_presets() -> Dict[str, Dict[str, Any]]:
+    """Load analysis presets. 
+    
+    On Vercel: Uses demo_binaries/ (small binaries for demo)
+    Locally: Uses test_binaries/ (full test suite)
+    """
     if not PRESETS_FILE.exists():
         return {}
 
@@ -55,6 +65,12 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         return {}
 
     presets: Dict[str, Dict[str, Any]] = {}
+    is_vercel = _is_vercel_deployment()
+    has_test_binaries = (ROOT / "test_binaries").exists()
+    
+    # On Vercel without test_binaries, use demo presets instead
+    use_demo = is_vercel or not has_test_binaries
+    
     for name, preset in raw.items():
         if not isinstance(preset, dict):
             continue
@@ -62,20 +78,33 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         # Resolve paths
         binary_path = _replace_workspace_var(preset.get("binary"))
         map_path = _replace_workspace_var(preset.get("map"))
-        libdir_path = _replace_workspace_var(preset.get("libdir"))
         
-        # Only include preset if at least one required file exists (or if running locally with test binaries)
-        # Note: Vercel deployments exclude test_binaries/ - users must upload files there
+        # If demo mode and files don't exist, try demo_binaries folder
+        if use_demo and not Path(binary_path).exists():
+            # Try to find demo version
+            demo_binary = ROOT / "static" / "demo_binaries" / Path(binary_path).name
+            if demo_binary.exists():
+                binary_path = str(demo_binary)
+                # Also look for demo map file
+                demo_map = ROOT / "static" / "demo_binaries" / Path(map_path).name if map_path else None
+                if demo_map and demo_map.exists():
+                    map_path = str(demo_map)
+                else:
+                    map_path = ""
+            else:
+                continue  # Skip if no demo version available
+        
+        # Only include preset if required files exist
         has_binary = binary_path and Path(binary_path).exists()
         has_map = map_path and Path(map_path).exists()
         
         if not (has_binary or has_map):
-            continue  # Skip presets with missing files (e.g., on Vercel)
+            continue
         
         presets[name] = {
             "binary": binary_path,
             "map": map_path,
-            "libdir": _replace_workspace_var(preset.get("libdir")),
+            "libdir": _replace_workspace_var(preset.get("libdir")) if not use_demo else "",
             "sdk_tools": _replace_workspace_var(preset.get("sdk_tools")),
             "depth": preset.get("depth", 5),
             "show_symbols": bool(preset.get("show_symbols", False))
@@ -259,6 +288,18 @@ PAGE = """
         }
         .theme-switch input:checked + .theme-slider::after {
             transform: translateX(20px);
+        }
+        .demo-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .card {
             background: var(--card);
@@ -617,7 +658,7 @@ PAGE = """
     <div class=\"wrap\">
         <div class=\"hero\">
             <div class=\"hero-head\">
-                <h2>Bin-Xray</h2>
+                <h2>Bin-Xray{% if is_demo %} <span class=\"demo-badge\">Demo</span>{% endif %}</h2>
                 <div class=\"hero-actions\">
                     <label class="theme-switch" title="Toggle theme">
                         <span>Theme</span>
@@ -643,7 +684,13 @@ PAGE = """
                             <option value=\"{{ preset_name }}\" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
                             {% endfor %}
                         </select>
-                        <div class=\"hint\">Choose a preset to load settings. {% if preset_options|length == 0 %}No presets available (test binaries not deployed).{% else %}Select a preset or manually enter paths below.{% endif %}</div>
+                        <div class=\"hint\">
+                            {% if preset_options|length == 0 %}
+                                {% if is_demo %}Demo binaries available: embedded_app, multi_module. Or provide your own binary path.{% else %}No presets found. Add binaries to config/analysis_presets.json.{% endif %}
+                            {% else %}
+                                Select a preset or manually enter paths below.
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class=\"field-full\">
@@ -1301,7 +1348,8 @@ def create_app() -> Flask:
         if "ADAS Camera" in presets:
             form.update(presets["ADAS Camera"])
             form["preset"] = "ADAS Camera"
-        return render_template_string(PAGE, form=form, result=None, error=None, preset_options=sorted(presets.keys()), preset_data=presets)
+        is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
+        return render_template_string(PAGE, form=form, result=None, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
 
     @app.post("/analyze")
     def analyze():
@@ -1311,10 +1359,12 @@ def create_app() -> Flask:
             form = _apply_selected_preset(form, presets)
 
             result = _analyze(form)
-            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets)
+            is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
+            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
         except Exception as exc:
             presets = _load_presets()
-            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets)
+            is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
+            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
 
     @app.post("/download-detailed-csv")
     def download_detailed_csv():

@@ -1,4 +1,16 @@
 {
+  "Embedded App (Demo)": {
+    "binary": "${workspaceFolder}/static/demo_binaries/embedded_app.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/embedded_app.map",
+    "show_symbols": true,
+    "auto": true
+  },
+  "Multi-Module (Demo)": {
+    "binary": "${workspaceFolder}/static/demo_binaries/multi_module.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/multi_module.map",
+    "show_symbols": true,
+    "auto": true
+  },
   "ADAS Camera": {
     "binary": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.elf",
     "map": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.map",
