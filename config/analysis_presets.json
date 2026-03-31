@@ -1,1 +1,34 @@
-{}
+{
+  "Preset 1: Simple Embedded (No Libs) - Expect HIGH Score": {
+    "binary": "${workspaceFolder}/static/demo_binaries/embedded_app.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/embedded_app.map",
+    "libdir": "",
+    "sdk_tools": "",
+    "depth": 5,
+    "show_symbols": false
+  },
+  "Preset 2: System LS (Minimal Libs) - Expect MEDIUM-HIGH": {
+    "binary": "${workspaceFolder}/static/demo_binaries/system_ls.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/embedded_app.map",
+    "libdir": "${workspaceFolder}/static/demo_binaries/libs",
+    "sdk_tools": "",
+    "depth": 5,
+    "show_symbols": false
+  },
+  "Preset 3: VIM (No Libs) - Expect MEDIUM Score": {
+    "binary": "${workspaceFolder}/static/demo_binaries/vim.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/embedded_app.map",
+    "libdir": "",
+    "sdk_tools": "",
+    "depth": 5,
+    "show_symbols": true
+  },
+  "Preset 4: Python (Python Libs) - Expect MEDIUM-LOW Score": {
+    "binary": "${workspaceFolder}/static/demo_binaries/python3.elf",
+    "map": "${workspaceFolder}/static/demo_binaries/embedded_app.map",
+    "libdir": "${workspaceFolder}/static/demo_binaries/python3_libs",
+    "sdk_tools": "",
+    "depth": 4,
+    "show_symbols": true
+  }
+}

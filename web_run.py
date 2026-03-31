@@ -1325,9 +1325,11 @@ def create_app() -> Flask:
     def home():
         presets = _load_presets()
         form = _form_defaults()
-        if "ADAS Camera" in presets:
-            form.update(presets["ADAS Camera"])
-            form["preset"] = "ADAS Camera"
+        # Use first available preset as default
+        if presets:
+            first_preset_name = sorted(presets.keys())[0]
+            form.update(presets[first_preset_name])
+            form["preset"] = first_preset_name
         is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
         return render_template_string(PAGE, form=form, result=None, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
 
