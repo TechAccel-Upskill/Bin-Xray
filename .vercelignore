@@ -1,0 +1,13 @@
+# Ignore Python cache and temp files
+__pycache__
+*.pyc
+.pytest_cache
+.DS_Store
+.git
+.gitignore
+.env.local
+*.log
+docs/
+examples/
+scripts/
+

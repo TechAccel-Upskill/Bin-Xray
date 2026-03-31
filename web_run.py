@@ -1254,7 +1254,8 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
+    static_folder = ROOT / "static"
+    app = Flask(__name__, static_folder=str(static_folder), static_url_path="/static")
 
     def _get_form_data() -> Dict[str, Any]:
         return {
