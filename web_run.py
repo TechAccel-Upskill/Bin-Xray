@@ -11,7 +11,6 @@ from flask import Flask, request, render_template_string
 import shutil
 
 import sys
-import setuptools
 
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
@@ -1359,7 +1358,7 @@ def create_app() -> Flask:
         import sys
         import platform
         import hashlib
-        import pkg_resources
+        from importlib import metadata
         elf_debug_lines = []
         # Python and platform info
         elf_debug_lines.append(f"Python: {sys.version}")
@@ -1404,7 +1403,7 @@ def create_app() -> Flask:
             pkgs = ["flask", "jinja2", "werkzeug"]
             for pkg in pkgs:
                 try:
-                    v = pkg_resources.get_distribution(pkg).version
+                    v = metadata.version(pkg)
                     elf_debug_lines.append(f"{pkg} version: {v}")
                 except Exception:
                     pass
