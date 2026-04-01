@@ -4,6 +4,7 @@
 networkx>=3.0
 flask>=3.0
 setuptools>=65.0
+boto3>=1.34.0
 
 # Note: matplotlib is no longer required (removed graph visualization)
 # Note: tkinter is required but comes with Python (install python3-tk on Linux)

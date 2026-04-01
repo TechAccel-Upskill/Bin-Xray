@@ -12,6 +12,8 @@ import platform
 import traceback
 import uuid
 from importlib import metadata
+from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from flask import Flask, request, render_template_string, jsonify
 import shutil
@@ -25,6 +27,7 @@ if str(SRC) not in sys.path:
 
 from bin_xray import BinaryParser, MapFileParser, LibraryParser, DependencyGraphBuilder
 from async_jobs import AsyncJobStore
+from object_storage import ObjectStorage
 
 PRESETS_FILE = ROOT / "config" / "analysis_presets.json"
 
@@ -722,6 +725,8 @@ PAGE = """
                         <div class=\"hint\">Provide absolute paths from the workspace.</div>
                         <div class=\"hint\">Or upload a binary below.</div>
                         <input type=\"file\" name=\"binary_file\" accept=\".elf,.out,.axf,.bin\" />
+                        <div class=\"hint\">Production (Proposal 2): use a signed download URL.</div>
+                        <input type=\"text\" name=\"binary_url\" value=\"{{ form.binary_url }}\" placeholder=\"https://storage.example.com/path/to/file.elf?signature=...\" />
                     </div>
 
                     <div class=\"field-full\">
@@ -729,6 +734,8 @@ PAGE = """
                         <input id=\"mapPath\" type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
                         <div class=\"hint\">Or upload a map file below.</div>
                         <input type=\"file\" name=\"map_file\" accept=\".map,.txt\" />
+                        <div class=\"hint\">Or provide a signed map URL.</div>
+                        <input type=\"text\" name=\"map_url\" value=\"{{ form.map_url }}\" placeholder=\"https://storage.example.com/path/to/file.map?signature=...\" />
                     </div>
 
                     <div class=\"field-full\">
@@ -736,6 +743,8 @@ PAGE = """
                         <input id=\"libDir\" type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
                         <div class=\"hint\">Or upload one or more library/object files.</div>
                         <input type=\"file\" name=\"lib_files\" multiple accept=\".a,.so,.dll,.o,.obj\" />
+                        <div class=\"hint\">Or provide signed URLs (comma-separated or one per line).</div>
+                        <input type=\"text\" name=\"lib_urls\" value=\"{{ form.lib_urls }}\" placeholder=\"https://.../liba.a?... , https://.../libb.a?...\" />
                         <div class=\"upload-note\">Uploaded files are stored in temporary server storage and used only for analysis.</div>
                     </div>
 
@@ -1136,6 +1145,9 @@ def _form_defaults() -> Dict[str, Any]:
         "binary": str(default_binary) if default_binary.exists() else "",
         "map": str(default_map) if default_map.exists() else "",
         "libdir": str(default_libdir) if default_libdir.is_dir() else "",
+        "binary_url": "",
+        "map_url": "",
+        "lib_urls": "",
         "sdk_tools": "",
         "depth": 5,
         "show_symbols": False,
@@ -1403,6 +1415,7 @@ def create_app() -> Flask:
     static_folder = ROOT / "static"
     app = Flask(__name__, static_folder=str(static_folder), static_url_path="/static")
     job_store = AsyncJobStore.from_env()
+    object_storage = ObjectStorage.from_env()
 
     def _worker_auth_ok() -> bool:
         expected = os.getenv("BINXRAY_WORKER_TOKEN", "").strip()
@@ -1421,6 +1434,9 @@ def create_app() -> Flask:
             "binary": request.form.get("binary", ""),
             "map": request.form.get("map", ""),
             "libdir": request.form.get("libdir", ""),
+            "binary_url": request.form.get("binary_url", ""),
+            "map_url": request.form.get("map_url", ""),
+            "lib_urls": request.form.get("lib_urls", ""),
             "sdk_tools": request.form.get("sdk_tools", ""),
             "depth": request.form.get("depth", "5"),
             "show_symbols": _to_bool(request.form.get("show_symbols")),
@@ -1435,11 +1451,78 @@ def create_app() -> Flask:
                 "binary": str(payload.get("binary", "")),
                 "map": str(payload.get("map", "")),
                 "libdir": str(payload.get("libdir", "")),
+                "binary_url": str(payload.get("binary_url", "")),
+                "map_url": str(payload.get("map_url", "")),
+                "lib_urls": str(payload.get("lib_urls", "")),
                 "sdk_tools": str(payload.get("sdk_tools", "")),
                 "depth": str(payload.get("depth", "5")),
                 "show_symbols": bool(payload.get("show_symbols", False)),
             }
         return _get_form_data()
+
+    def _is_http_url(value: str) -> bool:
+        try:
+            parsed = urlparse(value)
+            return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+        except Exception:
+            return False
+
+    def _download_url_to_path(src_url: str, dest: Path) -> None:
+        with urlopen(src_url, timeout=60) as resp, open(dest, "wb") as out:
+            while True:
+                chunk = resp.read(1024 * 1024)
+                if not chunk:
+                    break
+                out.write(chunk)
+
+    def _materialize_remote_inputs(form: Dict[str, Any]) -> Dict[str, Any]:
+        binary_url = str(form.get("binary_url", "")).strip()
+        map_url = str(form.get("map_url", "")).strip()
+        lib_urls_raw = str(form.get("lib_urls", "")).strip()
+
+        lib_urls = [
+            item.strip()
+            for line in lib_urls_raw.splitlines()
+            for item in line.split(",")
+            if item.strip()
+        ]
+
+        has_remote = bool(binary_url or map_url or lib_urls)
+        if not has_remote:
+            return form
+
+        temp_root = Path("/tmp") / "binxray_remote" / uuid.uuid4().hex
+        temp_root.mkdir(parents=True, exist_ok=True)
+
+        if binary_url:
+            if not _is_http_url(binary_url):
+                raise ValueError("Binary URL must be http/https")
+            bin_name = Path(urlparse(binary_url).path).name or "binary_input.bin"
+            bin_dest = temp_root / bin_name
+            _download_url_to_path(binary_url, bin_dest)
+            form["binary"] = str(bin_dest)
+
+        if map_url:
+            if not _is_http_url(map_url):
+                raise ValueError("Map URL must be http/https")
+            map_name = Path(urlparse(map_url).path).name or "input.map"
+            map_dest = temp_root / map_name
+            _download_url_to_path(map_url, map_dest)
+            form["map"] = str(map_dest)
+
+        if lib_urls:
+            lib_dir = temp_root / "libs"
+            lib_dir.mkdir(parents=True, exist_ok=True)
+            for idx, lib_url in enumerate(lib_urls, start=1):
+                if not _is_http_url(lib_url):
+                    raise ValueError("Library URLs must be http/https")
+                lib_name = Path(urlparse(lib_url).path).name or f"library_{idx}.a"
+                lib_dest = lib_dir / lib_name
+                _download_url_to_path(lib_url, lib_dest)
+            form["libdir"] = str(lib_dir)
+
+        form["preset"] = "__custom__"
+        return form
 
     def _materialize_uploaded_inputs(form: Dict[str, Any]) -> Dict[str, Any]:
         """Persist uploaded files to /tmp and override input paths for this request."""
@@ -1499,6 +1582,49 @@ def create_app() -> Flask:
             form["depth"] = str(selected.get("depth", 5))
             form["show_symbols"] = bool(selected.get("show_symbols", False))
         return form
+
+    @app.get("/storage/config")
+    def storage_config():
+        return jsonify({
+            "ok": True,
+            "enabled": object_storage is not None,
+            "provider": "s3-compatible" if object_storage else None,
+        })
+
+    @app.post("/storage/sign-upload")
+    def sign_upload():
+        if object_storage is None:
+            return jsonify({"ok": False, "error": "Object storage is not configured"}), 503
+
+        payload = request.get_json(silent=True) or {}
+        filename = str(payload.get("filename", "")).strip() or "input.bin"
+        content_type = str(payload.get("content_type", "application/octet-stream")).strip() or "application/octet-stream"
+        prefix = str(payload.get("prefix", "uploads")).strip() or "uploads"
+
+        object_key = object_storage.build_object_key(filename, prefix=prefix)
+        signed = object_storage.presign_upload(object_key, content_type=content_type, expires_in=900)
+        return jsonify({
+            "ok": True,
+            "object_key": signed.object_key,
+            "upload_url": signed.upload_url,
+            "download_url": signed.download_url,
+            "method": "PUT",
+            "expires_in": signed.expires_in,
+            "headers": {"Content-Type": content_type},
+        })
+
+    @app.post("/storage/sign-download")
+    def sign_download():
+        if object_storage is None:
+            return jsonify({"ok": False, "error": "Object storage is not configured"}), 503
+
+        payload = request.get_json(silent=True) or {}
+        object_key = str(payload.get("object_key", "")).strip()
+        if not object_key:
+            return jsonify({"ok": False, "error": "object_key is required"}), 400
+
+        download_url = object_storage.presign_download(object_key, expires_in=900)
+        return jsonify({"ok": True, "object_key": object_key, "download_url": download_url, "expires_in": 900})
 
     def _run_analysis_with_debug(form: Dict[str, Any]) -> Dict[str, Any]:
         elf_debug_lines = []
@@ -1628,6 +1754,7 @@ def create_app() -> Flask:
         presets = _load_presets()
         form = _apply_selected_preset(_get_form_data(), presets)
         form = _materialize_uploaded_inputs(form)
+        form = _materialize_remote_inputs(form)
         analysis = _run_analysis_with_debug(form)
         is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
         return render_template_string(
@@ -1655,6 +1782,7 @@ def create_app() -> Flask:
 
         presets = _load_presets()
         form = _apply_selected_preset(_get_request_form_data(), presets)
+        form = _materialize_remote_inputs(form)
         try:
             int(form.get("depth", "5"))
         except Exception:

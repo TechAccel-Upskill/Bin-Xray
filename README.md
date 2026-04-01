@@ -37,12 +37,33 @@ The repository now includes:
 - `vercel.json` (Vercel routing and Python runtime)
 - `requirements.txt` (Flask and dependencies)
 
-## Async Job Pipeline (Proposal 3)
+## Object Storage + Signed URLs (Proposal 2)
 
-The app now supports queued analysis jobs so submit requests stay lightweight.
+The app supports storage-backed analysis inputs for reliable Vercel execution.
+Instead of relying on in-request uploads for large artifacts, upload files to object storage and pass signed download URLs.
 
 ### Endpoints
 
+- `GET /storage/config`: check if storage signing is configured
+- `POST /storage/sign-upload`: generate signed PUT + GET URLs
+- `POST /storage/sign-download`: generate signed GET URL from an object key
+
+Request example for `POST /storage/sign-upload`:
+
+```json
+{
+	"filename": "adas_camera.elf",
+	"content_type": "application/octet-stream",
+	"prefix": "binxray-inputs"
+}
+```
+
+The response includes `upload_url`, `download_url`, and `object_key`.
+Upload your file with HTTP PUT to `upload_url`, then use `download_url` in the UI URL fields.
+
+### Analysis Endpoints
+
+- `POST /analyze`: supports direct paths, file uploads, and signed URL inputs
 - `POST /jobs/submit`: queue a job (form or JSON payload)
 - `GET /jobs/<job_id>`: read job status (`queued`, `running`, `succeeded`, `failed`)
 - `GET|POST /jobs/process-next`: worker endpoint that processes one queued job
@@ -52,12 +73,18 @@ The app now supports queued analysis jobs so submit requests stay lightweight.
 
 Set these environment variables in Vercel Project Settings:
 
+- `BINXRAY_S3_BUCKET`: bucket name
+- `BINXRAY_S3_REGION`: bucket region (optional)
+- `BINXRAY_S3_ENDPOINT`: custom endpoint for S3-compatible providers (optional)
+- `BINXRAY_S3_ACCESS_KEY`: access key (if not using provider-managed IAM)
+- `BINXRAY_S3_SECRET_KEY`: secret key (if not using provider-managed IAM)
+
 - `BINXRAY_QUEUE_URL`: Upstash Redis REST URL
 - `BINXRAY_QUEUE_TOKEN`: Upstash Redis REST token
 - `BINXRAY_WORKER_TOKEN`: shared secret for worker endpoint auth
 - `CRON_SECRET`: same value as `BINXRAY_WORKER_TOKEN` (so Vercel cron can call worker securely)
 
-`vercel.json` includes a 1-minute cron that calls `/jobs/process-next`.
+Queue variables are optional unless you are also using async jobs.
 
 ### Local Development
 
