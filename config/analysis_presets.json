@@ -1,8 +1,8 @@
 {
   "demo": {
-    "binary": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.elf",
-    "map": "${workspaceFolder}/test_binaries/adas_camera/adas_camera.map",
-    "libdir": "${workspaceFolder}/test_binaries/adas_camera/",
+    "binary": "${workspaceFolder}/static/test_binaries/adas_camera/adas_camera.elf",
+    "map": "${workspaceFolder}/static/test_binaries/adas_camera/adas_camera.map",
+    "libdir": "${workspaceFolder}/static/test_binaries/adas_camera/",
     "sdk_tools": "",
     "depth": 5,
     "show_symbols": false
