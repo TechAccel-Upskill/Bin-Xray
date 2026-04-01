@@ -28,10 +28,42 @@ Bin-Xray is a Python GUI tool that analyzes embedded binaries and linker map fil
 	vercel --prod
 	```
 
+### Demo Link
+
+- Demo link: https://your-vercel-app.vercel.app
+
 The repository now includes:
 - `api/index.py` (WSGI handler for Flask app)
 - `vercel.json` (Vercel routing and Python runtime)
 - `requirements.txt` (Flask and dependencies)
+
+## Async Job Pipeline (Proposal 3)
+
+The app now supports queued analysis jobs so submit requests stay lightweight.
+
+### Endpoints
+
+- `POST /jobs/submit`: queue a job (form or JSON payload)
+- `GET /jobs/<job_id>`: read job status (`queued`, `running`, `succeeded`, `failed`)
+- `GET|POST /jobs/process-next`: worker endpoint that processes one queued job
+- `GET /jobs/view/<job_id>`: render job result/error in the normal web UI
+
+### Vercel Setup
+
+Set these environment variables in Vercel Project Settings:
+
+- `BINXRAY_QUEUE_URL`: Upstash Redis REST URL
+- `BINXRAY_QUEUE_TOKEN`: Upstash Redis REST token
+- `BINXRAY_WORKER_TOKEN`: shared secret for worker endpoint auth
+- `CRON_SECRET`: same value as `BINXRAY_WORKER_TOKEN` (so Vercel cron can call worker securely)
+
+`vercel.json` includes a 1-minute cron that calls `/jobs/process-next`.
+
+### Local Development
+
+If `BINXRAY_QUEUE_URL` and `BINXRAY_QUEUE_TOKEN` are not set, jobs use a local file store at:
+
+- `/tmp/binxray_jobs.json` (or `BINXRAY_LOCAL_JOB_FILE` if provided)
 
 ## Documentation
 

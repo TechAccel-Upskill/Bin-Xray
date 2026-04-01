@@ -12,6 +12,12 @@
             "dest": "api/index.py"
         }
     ],
+    "crons": [
+        {
+            "path": "/jobs/process-next",
+            "schedule": "*/1 * * * *"
+        }
+    ],
     "env": {
         "PYTHONPATH": "/var/task"
     }

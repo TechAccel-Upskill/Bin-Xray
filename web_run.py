@@ -7,8 +7,13 @@ import json
 import csv
 import io
 from collections import Counter
+import hashlib
+import platform
+import traceback
+import uuid
+from importlib import metadata
 
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, jsonify
 import shutil
 
 import sys
@@ -19,6 +24,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from bin_xray import BinaryParser, MapFileParser, LibraryParser, DependencyGraphBuilder
+from async_jobs import AsyncJobStore
 
 PRESETS_FILE = ROOT / "config" / "analysis_presets.json"
 
@@ -165,6 +171,9 @@ PAGE = """
             --author-bg-end: #e0f2fe;
             --author-border: #bfdbfe;
             --author-text: #1e293b;
+            --upload-note-bg: #f1f5f9;
+            --upload-note-border: #cbd5e1;
+            --upload-note-text: #334155;
         }
         [data-theme="dark"] {
             --bg: #030712;
@@ -207,6 +216,9 @@ PAGE = """
             --author-bg-end: #1f2937;
             --author-border: #334155;
             --author-text: #e2e8f0;
+            --upload-note-bg: #1f2937;
+            --upload-note-border: #475569;
+            --upload-note-text: #cbd5e1;
         }
         * { box-sizing: border-box; }
         body {
@@ -492,6 +504,16 @@ PAGE = """
             font-size: 11px;
             color: var(--muted);
         }
+        .upload-note {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--upload-note-border);
+            background: var(--upload-note-bg);
+            border-radius: 8px;
+            color: var(--upload-note-text);
+            font-size: 12px;
+            line-height: 1.35;
+        }
         input[type=text], input[type=number], input[type=file], select {
             width: 100%;
             border: 1px solid var(--input-border);
@@ -675,12 +697,12 @@ PAGE = """
                 <h3 class=\"section-title\">Analysis Inputs</h3>
                 <button type=\"button\" class=\"info-btn\" title=\"About this tool\" onclick=\"showBinXrayInfo()\">i</button>
             </div>
-            <form id=\"analyzeForm\" method=\"post\" action=\"/analyze\">
+            <form id=\"analyzeForm\" method=\"post\" action=\"/analyze\" enctype=\"multipart/form-data\">
                 <div class=\"field-grid\">
                     <div class=\"field-full\">
                         <label>Preset Configuration</label>
                         <select id=\"presetSelect\" name=\"preset\">
-                            <option value=\"\">(none)</option>
+                            <option value=\"__custom__\" {% if form.preset == '__custom__' %}selected{% endif %}>Custom Input (manual/upload)</option>
                             {% for preset_name in preset_options %}
                             <option value=\"{{ preset_name }}\" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
                             {% endfor %}
@@ -698,16 +720,23 @@ PAGE = """
                         <label>Binary Path</label>
                         <input id=\"binaryPath\" type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
                         <div class=\"hint\">Provide absolute paths from the workspace.</div>
+                        <div class=\"hint\">Or upload a binary below.</div>
+                        <input type=\"file\" name=\"binary_file\" accept=\".elf,.out,.axf,.bin\" />
                     </div>
 
                     <div class=\"field-full\">
                         <label>Map File Path</label>
                         <input id=\"mapPath\" type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
+                        <div class=\"hint\">Or upload a map file below.</div>
+                        <input type=\"file\" name=\"map_file\" accept=\".map,.txt\" />
                     </div>
 
                     <div class=\"field-full\">
                         <label>Library Directory</label>
                         <input id=\"libDir\" type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
+                        <div class=\"hint\">Or upload one or more library/object files.</div>
+                        <input type=\"file\" name=\"lib_files\" multiple accept=\".a,.so,.dll,.o,.obj\" />
+                        <div class=\"upload-note\">Uploaded files are stored in temporary server storage and used only for analysis.</div>
                     </div>
 
                     <div>
@@ -1373,6 +1402,18 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
 def create_app() -> Flask:
     static_folder = ROOT / "static"
     app = Flask(__name__, static_folder=str(static_folder), static_url_path="/static")
+    job_store = AsyncJobStore.from_env()
+
+    def _worker_auth_ok() -> bool:
+        expected = os.getenv("BINXRAY_WORKER_TOKEN", "").strip()
+        if not expected:
+            return True
+        supplied = request.headers.get("x-worker-token", "").strip()
+        if not supplied:
+            auth = request.headers.get("authorization", "")
+            if auth.lower().startswith("bearer "):
+                supplied = auth[7:].strip()
+        return supplied == expected
 
     def _get_form_data() -> Dict[str, Any]:
         return {
@@ -1385,6 +1426,68 @@ def create_app() -> Flask:
             "show_symbols": _to_bool(request.form.get("show_symbols")),
         }
 
+    def _get_request_form_data() -> Dict[str, Any]:
+        # Supports both HTML form submit and JSON API submit.
+        if request.is_json:
+            payload = request.get_json(silent=True) or {}
+            return {
+                "preset": str(payload.get("preset", "")),
+                "binary": str(payload.get("binary", "")),
+                "map": str(payload.get("map", "")),
+                "libdir": str(payload.get("libdir", "")),
+                "sdk_tools": str(payload.get("sdk_tools", "")),
+                "depth": str(payload.get("depth", "5")),
+                "show_symbols": bool(payload.get("show_symbols", False)),
+            }
+        return _get_form_data()
+
+    def _materialize_uploaded_inputs(form: Dict[str, Any]) -> Dict[str, Any]:
+        """Persist uploaded files to /tmp and override input paths for this request."""
+        files = request.files
+        if not files:
+            return form
+
+        binary_upload = files.get("binary_file")
+        map_upload = files.get("map_file")
+        lib_uploads = files.getlist("lib_files") if hasattr(files, "getlist") else []
+
+        has_binary = bool(binary_upload and binary_upload.filename)
+        has_map = bool(map_upload and map_upload.filename)
+        has_libs = any(getattr(item, "filename", "") for item in lib_uploads)
+
+        if not (has_binary or has_map or has_libs):
+            return form
+
+        upload_root = Path("/tmp") / "binxray_uploads" / uuid.uuid4().hex
+        upload_root.mkdir(parents=True, exist_ok=True)
+
+        if has_binary:
+            binary_name = Path(binary_upload.filename).name
+            binary_dest = upload_root / binary_name
+            binary_upload.save(str(binary_dest))
+            form["binary"] = str(binary_dest)
+
+        if has_map:
+            map_name = Path(map_upload.filename).name
+            map_dest = upload_root / map_name
+            map_upload.save(str(map_dest))
+            form["map"] = str(map_dest)
+
+        if has_libs:
+            lib_dir = upload_root / "libs"
+            lib_dir.mkdir(parents=True, exist_ok=True)
+            for lib_file in lib_uploads:
+                if not lib_file or not lib_file.filename:
+                    continue
+                file_name = Path(lib_file.filename).name
+                lib_dest = lib_dir / file_name
+                lib_file.save(str(lib_dest))
+            form["libdir"] = str(lib_dir)
+
+        # Ensure server does not force a preset over uploaded data.
+        form["preset"] = "__custom__"
+        return form
+
     def _apply_selected_preset(form: Dict[str, Any], presets: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
         preset_name = form.get("preset", "")
         if preset_name and preset_name in presets:
@@ -1396,6 +1499,117 @@ def create_app() -> Flask:
             form["depth"] = str(selected.get("depth", 5))
             form["show_symbols"] = bool(selected.get("show_symbols", False))
         return form
+
+    def _run_analysis_with_debug(form: Dict[str, Any]) -> Dict[str, Any]:
+        elf_debug_lines = []
+        elf_debug_lines.append(f"Python: {sys.version}")
+        elf_debug_lines.append(f"Platform: {platform.platform()}")
+
+        env_vars = [
+            k for k in os.environ.keys()
+            if k.upper() in ("PATH", "PYTHONPATH", "HOME", "USER", "SHELL") or k.startswith("BINXRAY")
+        ]
+        for k in env_vars:
+            elf_debug_lines.append(f"ENV {k}: {os.environ.get(k)}")
+
+        elf_debug_lines.append(f"CWD: {os.getcwd()}")
+        libdir = form.get("libdir", "")
+        if libdir and Path(libdir).is_dir():
+            try:
+                files = os.listdir(libdir)
+                elf_debug_lines.append(f"Libdir files: {files}")
+            except Exception as exc:
+                elf_debug_lines.append(f"Libdir list error: {exc}")
+
+        def sha256sum(path: str) -> str:
+            try:
+                with open(path, "rb") as f:
+                    digest = hashlib.sha256()
+                    while True:
+                        chunk = f.read(8192)
+                        if not chunk:
+                            break
+                        digest.update(chunk)
+                    return digest.hexdigest()
+            except Exception as exc:
+                return f"error: {exc}"
+
+        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", ""))]:
+            if path and Path(path).is_file():
+                elf_debug_lines.append(f"{label} SHA256: {sha256sum(path)}")
+
+        if libdir and Path(libdir).is_dir():
+            for file_path in Path(libdir).iterdir():
+                if file_path.suffix in {".a", ".so", ".dll"}:
+                    elf_debug_lines.append(f"Lib: {file_path.name} SHA256: {sha256sum(str(file_path))}")
+
+        for pkg in ["flask", "jinja2", "werkzeug"]:
+            try:
+                v = metadata.version(pkg)
+                elf_debug_lines.append(f"{pkg} version: {v}")
+            except Exception:
+                pass
+
+        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", "")), ("Libdir", form.get("libdir", ""))]:
+            if not path:
+                continue
+            p = Path(path)
+            exists = p.exists()
+            size = os.path.getsize(path) if exists else 0
+            readable = False
+            perm_issue = False
+            if label == "Libdir":
+                if exists and p.is_dir():
+                    try:
+                        os.listdir(path)
+                        readable = os.access(path, os.R_OK | os.X_OK)
+                    except PermissionError:
+                        perm_issue = True
+                        readable = False
+                    except Exception:
+                        readable = False
+            else:
+                try:
+                    if exists and size > 0:
+                        with open(path, "rb") as f:
+                            f.read(1)
+                        readable = True
+                except PermissionError:
+                    perm_issue = True
+                    readable = False
+                except Exception:
+                    readable = False
+
+            elf_debug_lines.append(
+                f"{label}: {path} | Exists: {exists} | Size: {size} | Readable: {readable} | Permission Issue: {perm_issue}"
+            )
+            if not exists or size == 0 or not readable or perm_issue:
+                elf_debug_lines.append(f"[ERROR] {label} file missing, empty, unreadable, or permission denied!")
+
+        try:
+            result = _analyze(form)
+            diagnostics = result.get("diagnostics", {}) if isinstance(result, dict) else {}
+            if diagnostics:
+                elf_debug_lines.append("Diagnostics:")
+                for key, value in diagnostics.items():
+                    elf_debug_lines.append(f"{key}: {json.dumps(value, default=str)}")
+            return {
+                "ok": True,
+                "result": result,
+                "error": None,
+                "debug_info": "\n".join(elf_debug_lines),
+            }
+        except Exception as exc:
+            tb = traceback.format_exc()
+            elf_debug_lines.append(f"Exception: {exc}")
+            elf_debug_lines.append(f"Traceback:\n{tb}")
+            print(f"Exception: {exc}\nTraceback:\n{tb}", file=sys.stderr)
+            return {
+                "ok": False,
+                "result": None,
+                "error": str(exc),
+                "debug_info": "\n".join(elf_debug_lines),
+            }
 
     @app.get("/")
     def home():
@@ -1411,119 +1625,108 @@ def create_app() -> Flask:
 
     @app.post("/analyze")
     def analyze():
-        form = _get_form_data()
-        import sys
-        import platform
-        import hashlib
-        from importlib import metadata
-        elf_debug_lines = []
-        # Python and platform info
-        elf_debug_lines.append(f"Python: {sys.version}")
-        elf_debug_lines.append(f"Platform: {platform.platform()}")
-        # Environment variables (filtered for brevity)
-        env_vars = [k for k in os.environ.keys() if k.upper() in ("PATH", "PYTHONPATH", "HOME", "USER", "SHELL") or k.startswith("BINXRAY")]
-        for k in env_vars:
-            elf_debug_lines.append(f"ENV {k}: {os.environ.get(k)}")
-        # Working directory
-        elf_debug_lines.append(f"CWD: {os.getcwd()}")
-        # Directory listing for libdir
-        libdir = form.get("libdir", "")
-        if libdir and Path(libdir).is_dir():
-            try:
-                files = os.listdir(libdir)
-                elf_debug_lines.append(f"Libdir files: {files}")
-            except Exception as e:
-                elf_debug_lines.append(f"Libdir list error: {e}")
-        # File checksums
-        def sha256sum(path):
-            try:
-                with open(path, 'rb') as f:
-                    h = hashlib.sha256()
-                    while True:
-                        chunk = f.read(8192)
-                        if not chunk:
-                            break
-                        h.update(chunk)
-                    return h.hexdigest()
-            except Exception as e:
-                return f"error: {e}"
-        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", ""))]:
-            if path and Path(path).is_file():
-                elf_debug_lines.append(f"{label} SHA256: {sha256sum(path)}")
-        # Libdir library checksums
-        if libdir and Path(libdir).is_dir():
-            for f in Path(libdir).iterdir():
-                if f.suffix in {".a", ".so", ".dll"}:
-                    elf_debug_lines.append(f"Lib: {f.name} SHA256: {sha256sum(str(f))}")
-        # Dependency versions
+        presets = _load_presets()
+        form = _apply_selected_preset(_get_form_data(), presets)
+        form = _materialize_uploaded_inputs(form)
+        analysis = _run_analysis_with_debug(form)
+        is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
+        return render_template_string(
+            PAGE,
+            form=form,
+            result=analysis.get("result"),
+            error=analysis.get("error"),
+            preset_options=sorted(presets.keys()),
+            preset_data=presets,
+            is_demo=is_demo,
+            elf_debug_info=analysis.get("debug_info", ""),
+        )
+
+    @app.post("/jobs/submit")
+    def submit_job():
+        if request.files and (
+            (request.files.get("binary_file") and request.files.get("binary_file").filename)
+            or (request.files.get("map_file") and request.files.get("map_file").filename)
+            or any(getattr(item, "filename", "") for item in request.files.getlist("lib_files"))
+        ):
+            return jsonify({
+                "ok": False,
+                "error": "File uploads are currently supported only on /analyze. For async jobs, use storage-backed paths.",
+            }), 400
+
+        presets = _load_presets()
+        form = _apply_selected_preset(_get_request_form_data(), presets)
         try:
-            pkgs = ["flask", "jinja2", "werkzeug"]
-            for pkg in pkgs:
-                try:
-                    v = metadata.version(pkg)
-                    elf_debug_lines.append(f"{pkg} version: {v}")
-                except Exception:
-                    pass
+            int(form.get("depth", "5"))
         except Exception:
-            pass
-        # Always generate ELF debug info for binary, map, libdir
-        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", "")), ("Libdir", form.get("libdir", ""))]:
-            if path:
-                p = Path(path)
-                exists = p.exists()
-                size = os.path.getsize(path) if exists else 0
-                readable = False
-                perm_issue = False
-                if label == "Libdir":
-                    # For directories, check is_dir and access
-                    if exists and p.is_dir():
-                        # Directory is readable if we can list it
-                        try:
-                            os.listdir(path)
-                            readable = os.access(path, os.R_OK | os.X_OK)
-                        except PermissionError:
-                            perm_issue = True
-                            readable = False
-                        except Exception:
-                            readable = False
-                else:
-                    # For files, try to open
-                    try:
-                        if exists and size > 0:
-                            with open(path, 'rb') as f:
-                                f.read(1)
-                            readable = True
-                    except PermissionError:
-                        perm_issue = True
-                        readable = False
-                    except Exception:
-                        readable = False
-                elf_debug_lines.append(f"{label}: {path} | Exists: {exists} | Size: {size} | Readable: {readable} | Permission Issue: {perm_issue}")
-                if not exists or size == 0 or not readable or perm_issue:
-                    elf_debug_lines.append(f"[ERROR] {label} file missing, empty, unreadable, or permission denied!")
-        elf_debug_info = "\n".join(elf_debug_lines)
-        import traceback
-        try:
-            presets = _load_presets()
-            form = _apply_selected_preset(form, presets)
-            result = _analyze(form)
-            diagnostics = result.get("diagnostics", {}) if isinstance(result, dict) else {}
-            if diagnostics:
-                elf_debug_lines.append("Diagnostics:")
-                for key, value in diagnostics.items():
-                    elf_debug_lines.append(f"{key}: {json.dumps(value, default=str)}")
-            elf_debug_info = "\n".join(elf_debug_lines)
-            is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
-            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
-        except Exception as exc:
-            tb = traceback.format_exc()
-            elf_debug_lines.append(f"Exception: {exc}")
-            elf_debug_lines.append(f"Traceback:\n{tb}")
-            presets = _load_presets()
-            is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
-            # Optionally, print to stderr for logs
-            print(f"Exception: {exc}\nTraceback:\n{tb}", file=sys.stderr)
-            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info="\n".join(elf_debug_lines))
+            return jsonify({"ok": False, "error": "Invalid depth"}), 400
+
+        job = job_store.create_job(form)
+        return jsonify({
+            "ok": True,
+            "job_id": job["id"],
+            "status": job["status"],
+            "poll_url": f"/jobs/{job['id']}",
+            "view_url": f"/jobs/view/{job['id']}",
+        })
+
+    @app.get("/jobs/<job_id>")
+    def get_job(job_id: str):
+        job = job_store.get_job(job_id)
+        if not job:
+            return jsonify({"ok": False, "error": "Job not found"}), 404
+
+        return jsonify({
+            "ok": True,
+            "id": job.get("id"),
+            "status": job.get("status"),
+            "created_at": job.get("created_at"),
+            "updated_at": job.get("updated_at"),
+            "error": job.get("error"),
+            "has_result": bool(job.get("result")),
+        })
+
+    @app.route("/jobs/process-next", methods=["GET", "POST"])
+    def process_next_job():
+        if not _worker_auth_ok():
+            return jsonify({"ok": False, "error": "Unauthorized worker"}), 401
+
+        job = job_store.claim_next_job()
+        if not job:
+            return jsonify({"ok": True, "processed": False, "message": "No queued jobs"})
+
+        analysis = _run_analysis_with_debug(job.get("form", {}))
+        if analysis.get("ok"):
+            job_store.mark_success(job["id"], analysis.get("result") or {}, analysis.get("debug_info", ""))
+            return jsonify({"ok": True, "processed": True, "job_id": job["id"], "status": "succeeded"})
+
+        job_store.mark_failed(job["id"], str(analysis.get("error", "Analysis failed")), analysis.get("debug_info", ""))
+        return jsonify({"ok": True, "processed": True, "job_id": job["id"], "status": "failed"})
+
+    @app.get("/jobs/view/<job_id>")
+    def view_job(job_id: str):
+        job = job_store.get_job(job_id)
+        if not job:
+            return app.response_class("Job not found", status=404, mimetype="text/plain")
+
+        presets = _load_presets()
+        form = job.get("form") or _form_defaults()
+        status = job.get("status")
+        result = job.get("result") if status == "succeeded" else None
+        error = job.get("error")
+        if status in {"queued", "running"}:
+            error = f"Job {status}. Call /jobs/process-next from your worker and refresh this page."
+
+        is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
+        return render_template_string(
+            PAGE,
+            form=form,
+            result=result,
+            error=error,
+            preset_options=sorted(presets.keys()),
+            preset_data=presets,
+            is_demo=is_demo,
+            elf_debug_info=job.get("debug_info", ""),
+        )
 
     @app.post("/download-detailed-csv")
     def download_detailed_csv():
