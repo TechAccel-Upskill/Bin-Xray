@@ -11,6 +11,7 @@ from flask import Flask, request, render_template_string
 import shutil
 
 import sys
+import setuptools
 
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
