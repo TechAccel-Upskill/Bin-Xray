@@ -41,6 +41,11 @@ def _resolve_port(default_port: int = 8000) -> int:
 def _replace_workspace_var(value: Optional[str]) -> str:
     if not value:
         return ""
+    # Special handling for test_binaries in Vercel deployment
+    if _is_vercel_deployment() and "/test_binaries/" in value:
+        # On Vercel, files are deployed under /var/task, so strip ${workspaceFolder} and prepend /var/task
+        rel_path = value.replace('${workspaceFolder}', '').lstrip('/')
+        return f"/var/task/{rel_path}"
     return value.replace('${workspaceFolder}', str(ROOT))
 
 
