@@ -82,7 +82,7 @@ Welcome to Bin-Xray! This file helps you navigate all the documentation.
 → See [README.md - Troubleshooting](README.md#troubleshooting)
 
 #### ...use Bin-Xray programmatically
-→ See [examples.py](examples.py) - Contains 5 usage examples
+→ See [README.md](../README.md) and [QUICKSTART.md](QUICKSTART.md) for web and API usage.
 
 #### ...test my installation
 → Run `./test_installation.py`
@@ -104,7 +104,6 @@ Welcome to Bin-Xray! This file helps you navigate all the documentation.
 - **test_installation.py** - Installation verification
 
 ### Examples & Documentation
-- **examples.py** - 5 complete usage examples
 - **README.md** - Main documentation (400+ lines)
 - **QUICKSTART.md** - Getting started guide
 - **TOOLS_REFERENCE.md** - Tools documentation
@@ -134,7 +133,7 @@ Welcome to Bin-Xray! This file helps you navigate all the documentation.
 ### Advanced
 1. Read [SDK_EXTENSIONS.md](SDK_EXTENSIONS.md)
 2. Add custom map format parser
-3. Study [examples.py](examples.py)
+3. Study `web_run.py` routes and API endpoints
 4. Integrate into build system
 5. Consider [ALTERNATIVES.md](ALTERNATIVES.md) for scale
 
@@ -177,6 +176,7 @@ Help menu in application:
 
 - **Total documentation**: ~3,500 lines across 6 files
 - **Code**: ~2,400 lines (src/bin_xray.py + run.py + examples + tests)
+- **Code**: ~2,400 lines (src/bin_xray.py + run.py + tests)
 - **Total project**: ~6,000 lines
 - **File count**: 26+ files
 
@@ -204,7 +204,7 @@ Help menu in application:
 1. Load map file with --cref
 2. Search for symbol
 3. View all references
-→ See [examples.py - Graph Filtering](examples.py)
+→ Use the web app Detailed Summary and diagnostics section.
 
 ## 🚦 System Requirements
 
@@ -216,7 +216,6 @@ See [PROJECT_SUMMARY.md - Requirements](PROJECT_SUMMARY.md#system-requirements)
 ## 📞 Support Channels
 
 - **Documentation**: All .md files in this directory
-- **Examples**: [examples.py](examples.py)
 - **Tests**: [test_installation.py](test_installation.py)
 - **In-app**: Help menu
 

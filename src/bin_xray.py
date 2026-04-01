@@ -867,19 +867,9 @@ class DependencyGraphBuilder:
                                                   symbol=bin_undef.name)
                                 break
     
-    def _detect_unused_nodes(self, binary_info, libraries, map_info: Optional[MapFileInfo] = None):
+    def _detect_unused_nodes(self, binary_info, _libraries, map_info: Optional[MapFileInfo] = None):
         """Detect unused objects and libraries."""
-        # Step 1: Identify nodes with dependencies (have edges)
-        nodes_with_edges = set()
-        for edge in self.graph.edges():
-            nodes_with_edges.add(edge[0])
-            nodes_with_edges.add(edge[1])
-        
-        # Add binary to used nodes
-        if binary_info:
-            nodes_with_edges.add(binary_info.name)
-        
-        # Step 2: Build library -> objects mapping
+        # Step 1: Build library -> objects mapping
         library_objects = {}
         for node in self.graph.nodes():
             node_type = self.node_types.get(node, '')
@@ -890,7 +880,7 @@ class DependencyGraphBuilder:
                     if u == node and data.get('type') == 'contains' and self.node_types.get(v) == 'object':
                         library_objects[node].append(v)
         
-        # Step 3: Determine used libraries (libraries that binary depends on)
+        # Step 2: Determine used libraries (libraries that binary depends on)
         used_libraries = set()
         if binary_info:
             for lib_node in library_objects.keys():
@@ -901,7 +891,7 @@ class DependencyGraphBuilder:
                             used_libraries.add(lib_node)
                             break
 
-        # Step 3b: Fallback library usage from map entries.
+        # Step 2b: Fallback library usage from map entries.
         # Some environments parse fewer archive members (e.g., tool differences),
         # but map section placement still reveals which libraries contributed.
         map_used_libraries = set()
@@ -928,7 +918,7 @@ class DependencyGraphBuilder:
                 if os.path.basename(lib_node) in map_used_libraries:
                     used_libraries.add(lib_node)
         
-        # Step 4: Mark objects as used if:
+        # Step 3: Mark objects as used if:
         # - They are in a used library, OR
         # - They have symbol dependencies (symbol_ref edges), OR
         # - They are directly referenced by binary, OR
@@ -1005,7 +995,7 @@ class DependencyGraphBuilder:
                 else:
                     self.unused_objects.add(node)
         
-        # Step 5: Identify unused libraries
+        # Step 4: Identify unused libraries
         for lib_name in library_objects.keys():
             if lib_name not in used_libraries:
                 # Library is not directly used by binary
@@ -1019,7 +1009,7 @@ class DependencyGraphBuilder:
                 if not has_used_objects:
                     self.unused_libraries.add(lib_name)
         
-        # Step 6: Mark unused nodes with special attribute
+        # Step 5: Mark unused nodes with special attribute
         for node in self.unused_objects | self.unused_libraries:
             if node in self.graph:
                 self.graph.nodes[node]['unused'] = True

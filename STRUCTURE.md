@@ -23,12 +23,6 @@ Bin-xray/
 ├── scripts/                # Utility scripts
 │   └── test_installation.py  # Test installation
 │
-├── examples/               # Example usage scripts
-│   ├── launch_adas_test.py
-│   ├── launch_multi_module.py
-│   ├── compare_test_data.py
-│   └── examples.py
-│
 ├── test_binaries/          # Test data
 │   ├── adas_camera/       # ADAS test case
 │   ├── vim_libs/          # Vim test libraries
@@ -47,9 +41,6 @@ All markdown documentation, guides, and references.
 
 ### `/scripts` - Utility Scripts
 Helper scripts for installation, testing, and maintenance.
-
-### `/examples` - Example Usage
-Demo scripts showing how to use the tool with different binaries.
 
 ### `/test_binaries` - Test Data
 Sample binaries, libraries, and map files for testing and validation.

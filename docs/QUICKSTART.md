@@ -216,7 +216,7 @@ import networkx as nx
 nx.write_graphml(graph, 'output.graphml')
 ```
 
-See `examples.py` for more examples.
+For more advanced usage, see `README.md` and `SDK_EXTENSIONS.md`.
 
 ### Custom SDK Support
 
@@ -321,4 +321,4 @@ python3 run.py
 
 **Happy analyzing!** 🔍
 
-For issues or questions, check the main `README.md` or examine the example scripts in `examples.py`.
+For issues or questions, check the main `README.md` and the docs in this folder.

@@ -64,10 +64,6 @@ Upload your file with HTTP PUT to `upload_url`, then use `download_url` in the U
 ### Analysis Endpoints
 
 - `POST /analyze`: supports direct paths, file uploads, and signed URL inputs
-- `POST /jobs/submit`: queue a job (form or JSON payload)
-- `GET /jobs/<job_id>`: read job status (`queued`, `running`, `succeeded`, `failed`)
-- `GET|POST /jobs/process-next`: worker endpoint that processes one queued job
-- `GET /jobs/view/<job_id>`: render job result/error in the normal web UI
 
 ### Vercel Setup
 
@@ -79,18 +75,21 @@ Set these environment variables in Vercel Project Settings:
 - `BINXRAY_S3_ACCESS_KEY`: access key (if not using provider-managed IAM)
 - `BINXRAY_S3_SECRET_KEY`: secret key (if not using provider-managed IAM)
 
-- `BINXRAY_QUEUE_URL`: Upstash Redis REST URL
-- `BINXRAY_QUEUE_TOKEN`: Upstash Redis REST token
-- `BINXRAY_WORKER_TOKEN`: shared secret for worker endpoint auth
-- `CRON_SECRET`: same value as `BINXRAY_WORKER_TOKEN` (so Vercel cron can call worker securely)
+### Optional Async Queue (Advanced)
 
-Queue variables are optional unless you are also using async jobs.
+If you also want asynchronous processing, these optional endpoints are available:
 
-### Local Development
+- `POST /jobs/submit`
+- `GET /jobs/<job_id>`
+- `GET|POST /jobs/process-next`
+- `GET /jobs/view/<job_id>`
 
-If `BINXRAY_QUEUE_URL` and `BINXRAY_QUEUE_TOKEN` are not set, jobs use a local file store at:
+Optional queue env vars:
 
-- `/tmp/binxray_jobs.json` (or `BINXRAY_LOCAL_JOB_FILE` if provided)
+- `BINXRAY_QUEUE_URL`
+- `BINXRAY_QUEUE_TOKEN`
+- `BINXRAY_WORKER_TOKEN`
+- `CRON_SECRET`
 
 ## Documentation
 

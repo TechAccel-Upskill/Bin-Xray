@@ -132,7 +132,6 @@ Bin-xray/
 ├── src/
 │   └── bin_xray.py      # Core application code
 ├── docs/                # Documentation
-├── examples/            # Example scripts
 ├── scripts/             # Utility scripts
 ├── test_binaries/       # Test data
 ├── config/              # Configuration files
@@ -149,4 +148,3 @@ deactivate
 ## Additional Resources
 - **README.md** - Project overview and features
 - **docs/** - Detailed documentation
-- **examples/** - Example usage scripts
