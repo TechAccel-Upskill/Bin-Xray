@@ -15,9 +15,9 @@ Bin-Xray is a Python GUI tool that analyzes embedded binaries and linker map fil
 	```bash
 	pip install -r requirements.txt
 	```
-2. Run the app locally:
+2. Run the web app locally:
 	```bash
-	python run.py
+	python web_run.py
 	```
 
 ## Deploy on Vercel

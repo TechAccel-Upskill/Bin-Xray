@@ -975,12 +975,18 @@ PAGE = """
         const savedTheme = localStorage.getItem('binxray-theme');
         if (savedTheme === 'dark' || savedTheme === 'light') {
             setTheme(savedTheme);
-            return app
+            return;
+        }
 
-        if __name__ == "__main__":
-            app = create_app()
-            port = _resolve_port(8000)
-            app.run(host="0.0.0.0", port=port)
+        setTheme('light');
+    }
+
+    function applyAboutMeFold() {
+        const topLayout = document.querySelector('.top-layout');
+        if (!topLayout) return;
+
+        const shouldFold = localStorage.getItem('binxray-fold-about') === '1';
+        topLayout.classList.toggle('fold-about', shouldFold);
 
         const aboutToggleBtn = document.getElementById('aboutToggleBtn');
         updateToggleButtonState(aboutToggleBtn, shouldFold);
@@ -1116,7 +1122,7 @@ PAGE = """
         const analyzeForm = document.getElementById('analyzeForm');
         if (analyzeForm) {
             analyzeForm.addEventListener('submit', () => {
-                localStorage.setItem('binxray-fold-about', '1');
+                localStorage.removeItem('binxray-fold-about');
             });
         }
 

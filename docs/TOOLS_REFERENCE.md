@@ -341,7 +341,6 @@ else:
 **Solutions**:
 1. Install binutils: `sudo apt-get install binutils`
 2. Add tools to PATH: `export PATH=/path/to/sdk/bin:$PATH`
-3. Specify SDK Tools path in GUI
 
 ### Wrong architecture detected
 
