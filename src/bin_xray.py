@@ -892,6 +892,33 @@ class DependencyGraphBuilder:
                         if u == binary_info.name and v == lib_node and data.get('type') in ['dynamic', 'depends_on']:
                             used_libraries.add(lib_node)
                             break
+
+        # Step 3b: Fallback library usage from map entries.
+        # Some environments parse fewer archive members (e.g., tool differences),
+        # but map section placement still reveals which libraries contributed.
+        map_used_libraries = set()
+        if map_info:
+            for section_objects in map_info.section_map.values():
+                for item in section_objects:
+                    token = str(item).strip()
+                    if not token:
+                        continue
+
+                    # Match patterns like "libfoo.a(bar.o)" or "libfoo.a:bar.o"
+                    match = re.match(r'([^\s:()]+\.(?:a|so|dll|dylib))\s*(?:\(|:)', token)
+                    if match:
+                        map_used_libraries.add(os.path.basename(match.group(1)))
+                        continue
+
+                    # If the entry itself is a library path/name, count it as used.
+                    base = os.path.basename(token)
+                    if base.endswith(('.a', '.so', '.dll', '.dylib')):
+                        map_used_libraries.add(base)
+
+        if map_used_libraries:
+            for lib_node in library_objects.keys():
+                if os.path.basename(lib_node) in map_used_libraries:
+                    used_libraries.add(lib_node)
         
         # Step 4: Mark objects as used if:
         # - They are in a used library, OR
