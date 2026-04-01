@@ -615,6 +615,14 @@ class LibraryParser:
                 
                 # Extract symbols from each object file
                 for obj in object_files:
+                    obj = obj.strip()
+                    if not obj:
+                        continue
+
+                    # Always register archive members as objects, even if symbol
+                    # extraction fails on this environment/toolchain.
+                    symbols_by_object.setdefault(obj, [])
+
                     success, stdout, _ = self.binary_parser._run_tool('nm', ['-C', lib_path, obj])
                     if success:
                         symbols = []

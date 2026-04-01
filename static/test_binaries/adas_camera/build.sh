@@ -27,6 +27,13 @@ gcc -c object_detection.c -o object_detection.o -Wall || exit 1
 ar rcs libalgorithms.a image_processing.o lane_detection.o object_detection.o
 echo "   ✓ libalgorithms.a created"
 
+# Compile demo-only unused library to show optimization opportunities in Bin-Xray
+echo "3b. Compiling unused demo library..."
+gcc -c unused_diag.c -o unused_diag.o -Wall || exit 1
+gcc -c unused_telemetry.c -o unused_telemetry.o -Wall || exit 1
+ar rcs libunused_demo.a unused_diag.o unused_telemetry.o
+echo "   ✓ libunused_demo.a created (intentionally not linked)"
+
 # Compile Application layer
 echo "4. Compiling Application layer..."
 gcc -c vehicle_control.c -o vehicle_control.o -Wall || exit 1
@@ -53,6 +60,7 @@ echo "Object files in each library:"
 ar t libhal.a | sed 's/^/  libhal.a: /'
 ar t libdrivers.a | sed 's/^/  libdrivers.a: /'
 ar t libalgorithms.a | sed 's/^/  libalgorithms.a: /'
+ar t libunused_demo.a | sed 's/^/  libunused_demo.a: /'
 
 echo ""
 echo "✅ ADAS Camera System build complete!"

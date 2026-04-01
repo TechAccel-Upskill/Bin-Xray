@@ -656,12 +656,6 @@ PAGE = """
   </style>
 </head>
 <body>
-            {% if elf_debug_info %}
-                <div class="card debug-section">
-                    <h3>ELF Debug Info</h3>
-                    <pre class="debug">{{ elf_debug_info }}</pre>
-                </div>
-            {% endif %}
     <div class=\"wrap\">
         <div class=\"hero\">
             <div class=\"hero-head\">
@@ -861,6 +855,15 @@ PAGE = """
             </table>
             </div>
         </div>
+        </div>
+  {% endif %}
+
+  {% if elf_debug_info %}
+        <div class="card debug-section">
+            <details>
+                <summary class="section-title">ELF Debug Info</summary>
+                <pre class="debug">{{ elf_debug_info }}</pre>
+            </details>
         </div>
   {% endif %}
 
