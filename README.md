@@ -91,6 +91,11 @@ Optional queue env vars:
 - `BINXRAY_WORKER_TOKEN`
 - `CRON_SECRET`
 
+Hobby plan note:
+- Vercel cron can run only once per day, with hourly-level precision (up to ~59 minutes delay).
+- This repository uses a daily cron schedule for Hobby compatibility.
+- For frequent queue processing, use Vercel Pro or trigger `/jobs/process-next` from an external scheduler.
+
 ## Documentation
 
 - User guide: [docs/README.md](docs/README.md)

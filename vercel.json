@@ -15,7 +15,7 @@
     "crons": [
         {
             "path": "/jobs/process-next",
-            "schedule": "*/1 * * * *"
+            "schedule": "0 3 * * *"
         }
     ],
     "env": {
