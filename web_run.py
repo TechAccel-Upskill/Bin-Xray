@@ -343,13 +343,13 @@ PAGE = """
         .analysis-card {
             margin-bottom: 0;
             height: 100%;
-            padding: 14px;
+            padding: 11px;
         }
         .profile-card {
             margin-bottom: 0;
             text-align: left;
             height: 100%;
-            padding: 14px;
+            padding: 11px;
         }
         .profile-head {
             display: flex;
@@ -479,6 +479,10 @@ PAGE = """
             font-size: 15px;
             color: var(--text);
         }
+        .analysis-card .section-title,
+        .profile-card .section-title {
+            font-size: 12px;
+        }
         .section-head {
             display: flex;
             align-items: center;
@@ -492,7 +496,7 @@ PAGE = """
         .field-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
         .field-full { grid-column: 1 / -1; }
         label {
@@ -502,10 +506,54 @@ PAGE = """
             color: var(--label);
             margin-bottom: 4px;
         }
+        .analysis-card label {
+            font-size: 10px;
+        }
+        .label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .label-row label {
+            margin-bottom: 0;
+        }
+        .upload-trigger {
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--input-text);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            line-height: 1.2;
+            cursor: pointer;
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .upload-trigger:hover {
+            background: var(--metric-bg);
+            filter: none;
+        }
+        .hidden-file-input {
+            display: none;
+        }
+        .upload-selected {
+            font-style: italic;
+        }
         .hint {
             margin-top: 4px;
             font-size: 11px;
             color: var(--muted);
+        }
+        .analysis-card .hint,
+        .profile-card .about-text,
+        .profile-card .about-list,
+        .profile-card .author-link {
+            font-size: 10px;
         }
         .upload-note {
             margin-top: 8px;
@@ -517,12 +565,12 @@ PAGE = """
             font-size: 12px;
             line-height: 1.35;
         }
-        input[type=text], input[type=number], input[type=file], select {
+        input[type=text], input[type=number], select {
             width: 100%;
             border: 1px solid var(--input-border);
             border-radius: 8px;
-            padding: 8px 10px;
-            font-size: 13px;
+            padding: 6px 8px;
+            font-size: 11px;
             background: var(--input-bg);
             color: var(--input-text);
         }
@@ -539,6 +587,9 @@ PAGE = """
             margin-top: 6px;
             color: var(--label);
             font-size: 13px;
+        }
+        .analysis-card .toggle {
+            font-size: 11px;
         }
         .actions {
             display: flex;
@@ -649,7 +700,7 @@ PAGE = """
                 font-weight: 700;
                 margin-bottom: 6px;
                 color: var(--author-text);
-                font-size: 14px;
+                font-size: 11px;
             }
             .about-text {
                 text-align: left;
@@ -700,17 +751,17 @@ PAGE = """
                 <h3 class=\"section-title\">Analysis Inputs</h3>
                 <button type=\"button\" class=\"info-btn\" title=\"About this tool\" onclick=\"showBinXrayInfo()\">i</button>
             </div>
-            <form id=\"analyzeForm\" method=\"post\" action=\"/analyze\" enctype=\"multipart/form-data\">
-                <div class=\"field-grid\">
-                    <div class=\"field-full\">
+            <form id="analyzeForm" method="post" action="/analyze" enctype="multipart/form-data">
+                <div class="field-grid">
+                    <div class="field-full">
                         <label>Preset Configuration</label>
-                        <select id=\"presetSelect\" name=\"preset\">
-                            <option value=\"__custom__\" {% if form.preset == '__custom__' %}selected{% endif %}>Custom Input (manual/upload)</option>
+                        <select id="presetSelect" name="preset">
+                            <option value="__custom__" {% if form.preset == '__custom__' %}selected{% endif %}>Custom Input (manual/upload)</option>
                             {% for preset_name in preset_options %}
-                            <option value=\"{{ preset_name }}\" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
+                            <option value="{{ preset_name }}" {% if form.preset == preset_name %}selected{% endif %}>{{ preset_name }}</option>
                             {% endfor %}
                         </select>
-                        <div class=\"hint\">
+                        <div class="hint">
                             {% if preset_options|length == 0 %}
                                 {% if is_demo %}Demo binaries available: embedded_app, multi_module. Or provide your own binary path.{% else %}No presets found. Add binaries to config/analysis_presets.json.{% endif %}
                             {% else %}
@@ -719,64 +770,73 @@ PAGE = """
                         </div>
                     </div>
 
-                    <div class=\"field-full\">
-                        <label>Binary Path</label>
-                        <input id=\"binaryPath\" type=\"text\" name=\"binary\" value=\"{{ form.binary }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf\" />
-                        <div class=\"hint\">Provide absolute paths from the workspace.</div>
-                        <div class=\"hint\">Or upload a binary below.</div>
-                        <input type=\"file\" name=\"binary_file\" accept=\".elf,.out,.axf,.bin\" />
-                        <div class=\"hint\">Production (Proposal 2): use a signed download URL.</div>
-                        <input type=\"text\" name=\"binary_url\" value=\"{{ form.binary_url }}\" placeholder=\"https://storage.example.com/path/to/file.elf?signature=...\" />
+                    <div class="field-full">
+                        <div class="label-row">
+                            <label for="binaryPath">Binary Path</label>
+                            <button type="button" class="upload-trigger" onclick="openFilePicker('binaryFile')" title="Upload binary file">🗂 Upload</button>
+                        </div>
+                        <input id="binaryPath" type="text" name="binary" value="{{ form.binary }}" placeholder="/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.elf" />
+                        <div class="hint">Provide absolute paths from the workspace.</div>
+                        <input id="binaryFile" class="hidden-file-input" type="file" name="binary_file" accept=".elf,.out,.axf,.bin" />
+                        <div id="binaryUploadHint" class="hint upload-selected">No upload selected.</div>
+                        <div class="hint">Production (Proposal 2): use a signed download URL.</div>
+                        <input type="text" name="binary_url" value="{{ form.binary_url }}" placeholder="https://storage.example.com/path/to/file.elf?signature=..." />
                     </div>
 
-                    <div class=\"field-full\">
-                        <label>Map File Path</label>
-                        <input id=\"mapPath\" type=\"text\" name=\"map\" value=\"{{ form.map }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map\" />
-                        <div class=\"hint\">Or upload a map file below.</div>
-                        <input type=\"file\" name=\"map_file\" accept=\".map,.txt\" />
-                        <div class=\"hint\">Or provide a signed map URL.</div>
-                        <input type=\"text\" name=\"map_url\" value=\"{{ form.map_url }}\" placeholder=\"https://storage.example.com/path/to/file.map?signature=...\" />
+                    <div class="field-full">
+                        <div class="label-row">
+                            <label for="mapPath">Map File Path</label>
+                            <button type="button" class="upload-trigger" onclick="openFilePicker('mapFile')" title="Upload map file">🗂 Upload</button>
+                        </div>
+                        <input id="mapPath" type="text" name="map" value="{{ form.map }}" placeholder="/workspaces/Bin-Xray/test_binaries/adas_camera/adas_camera.map" />
+                        <input id="mapFile" class="hidden-file-input" type="file" name="map_file" accept=".map,.txt" />
+                        <div id="mapUploadHint" class="hint upload-selected">No upload selected.</div>
+                        <div class="hint">Or provide a signed map URL.</div>
+                        <input type="text" name="map_url" value="{{ form.map_url }}" placeholder="https://storage.example.com/path/to/file.map?signature=..." />
                     </div>
 
-                    <div class=\"field-full\">
-                        <label>Library Directory</label>
-                        <input id=\"libDir\" type=\"text\" name=\"libdir\" value=\"{{ form.libdir }}\" placeholder=\"/workspaces/Bin-Xray/test_binaries/adas_camera/\" />
-                        <div class=\"hint\">Or upload one or more library/object files.</div>
-                        <input type=\"file\" name=\"lib_files\" multiple accept=\".a,.so,.dll,.o,.obj\" />
-                        <div class=\"hint\">Or provide signed URLs (comma-separated or one per line).</div>
-                        <input type=\"text\" name=\"lib_urls\" value=\"{{ form.lib_urls }}\" placeholder=\"https://.../liba.a?... , https://.../libb.a?...\" />
-                        <div class=\"upload-note\">Uploaded files are stored in temporary server storage and used only for analysis.</div>
+                    <div class="field-full">
+                        <div class="label-row">
+                            <label for="libDir">Library Directory</label>
+                            <button type="button" class="upload-trigger" onclick="openFilePicker('libFiles')" title="Upload library/object files">🗂 Upload</button>
+                        </div>
+                        <input id="libDir" type="text" name="libdir" value="{{ form.libdir }}" placeholder="/workspaces/Bin-Xray/test_binaries/adas_camera/" />
+                        <input id="libFiles" class="hidden-file-input" type="file" name="lib_files" multiple accept=".a,.so,.dll,.o,.obj" />
+                        <div id="libUploadHint" class="hint upload-selected">No uploads selected.</div>
+                        <div class="hint">Or provide signed URLs (comma-separated or one per line).</div>
+                        <input type="text" name="lib_urls" value="{{ form.lib_urls }}" placeholder="https://.../liba.a?... , https://.../libb.a?..." />
+                        <div class="upload-note">Uploaded files are stored in temporary server storage and used only for analysis.</div>
                     </div>
 
                     <div>
                         <label>SDK Tools Directory (optional)</label>
-                        <input id=\"sdkTools\" type=\"text\" name=\"sdk_tools\" value=\"{{ form.sdk_tools }}\" />
+                        <input id="sdkTools" type="text" name="sdk_tools" value="{{ form.sdk_tools }}" />
                     </div>
 
                     <div>
                         <label>Depth</label>
-                        <input id=\"depthInput\" type=\"number\" min=\"1\" max=\"20\" name=\"depth\" value=\"{{ form.depth }}\" />
+                        <input id="depthInput" type="number" min="1" max="20" name="depth" value="{{ form.depth }}" />
                     </div>
                 </div>
 
-                <label class=\"toggle\">
-                    <input id=\"showSymbols\" type=\"checkbox\" name=\"show_symbols\" {% if form.show_symbols %}checked{% endif %} />
+                <label class="toggle">
+                    <input id="showSymbols" type="checkbox" name="show_symbols" {% if form.show_symbols %}checked{% endif %} />
                     Show symbol dependencies
                 </label>
 
-                <div class=\"actions\">
-                    <button type=\"submit\">Generate Bin-Xray</button>
+                <div class="actions">
+                    <button type="submit">Generate Bin-Xray</button>
                 </div>
             </form>
         </div>
-        <div class=\"card profile-card\">
+        <div class="card profile-card">
             <div id="aboutHead" class="profile-head collapsible-head">
                 <h3 class="section-title">About Me</h3>
                 <button id="aboutToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleAboutMeFold()" aria-expanded="true" aria-label="Toggle About Me"></button>
             </div>
             <div class="profile-body">
-            <img class=\"profile-photo\" src=\"{{ url_for('static', filename='profile.png') }}\" alt=\"Vinod Kumar Neelakantam\" onerror=\"this.style.display='none'; this.nextElementSibling.style.display='flex';\" />
-            <div class=\"profile-photo-placeholder\" style=\"display:none;\">Place image at static/profile.png</div>
+            <img class="profile-photo" src="{{ url_for('static', filename='profile.png') }}" alt="Vinod Kumar Neelakantam" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="profile-photo-placeholder" style="display:none;">Place image at static/profile.png</div>
             <div class="about-text">
                 I am Vinod Kumar Neelakantam, an accomplished engineering professional with over 12 years of progressive experience in embedded systems, software integration, release management, and DevOps. With a Master’s degree in Embedded &amp; VLSI Design Systems and a Certified ISTQB Tester credential, I bring a robust technical foundation and a collaborative approach to driving innovation. My diversified roles in embedded systems over a decade position me as a strong candidate in the AI era, and I am eager to contribute my expertise to your organization.
             </div>
@@ -800,7 +860,7 @@ PAGE = """
             <div class="about-text">
                 My career began as an Embedded Trainer, establishing a foundation in microcontroller systems. I then advanced to developing embedded software, mastering device drivers and hardware integration. As a Software Integrator, I focused on testing and documentation for quality assurance. Progressing to Release Manager, I managed global releases with ASPICE compliance. Now, as a DevOps Engineer, I create seamless CI/CD pipelines, optimizing workflows for the AI-driven future.
             </div>
-            <a class=\"author-link\" href=\"https://www.linkedin.com/in/vinodneelakantam\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.linkedin.com/in/vinodneelakantam</a>
+            <a class="author-link" href="https://www.linkedin.com/in/vinodneelakantam" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/vinodneelakantam</a>
             </div>
         </div>
         </div>
@@ -811,40 +871,40 @@ PAGE = """
 
   {% if result %}
         <div id="resultSections">
-        <div class=\"card\">
+        <div class="card">
             <div id="summaryHead" class="card-head collapsible-head">
-                <h3 class=\"section-title\">Summary for {{ result.binary_name }}</h3>
+                <h3 class="section-title">Summary for {{ result.binary_name }}</h3>
                 <div class="head-actions">
                     <button type="button" class="clear-results-btn" onclick="clearResultSections()" aria-label="Clear Summary and Detailed Summary">Clear Results</button>
                     <button id="summaryToggleBtn" type="button" class="panel-toggle-btn" onclick="toggleSectionBody('summaryBody','summaryToggleBtn','binxray-collapse-summary')" aria-expanded="true" aria-label="Toggle Summary"></button>
                 </div>
             </div>
             <div id="summaryBody">
-            <div class=\"metrics\">
-                <div class=\"metric\">
-                    <div class=\"metric-head\">
-                        <div class=\"k\">Nodes</div>
-                        <button type=\"button\" class=\"info-btn\" title=\"What are nodes?\" onclick=\"showNodesInfo()\">i</button>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-head">
+                        <div class="k">Nodes</div>
+                        <button type="button" class="info-btn" title="What are nodes?" onclick="showNodesInfo()">i</button>
                     </div>
-                    <div class=\"v\">{{ result.nodes }}</div>
+                    <div class="v">{{ result.nodes }}</div>
                 </div>
-                <div class=\"metric\">
-                    <div class=\"metric-head\">
-                        <div class=\"k\">Edges</div>
-                        <button type=\"button\" class=\"info-btn\" title=\"What are edges?\" onclick=\"showEdgesInfo()\">i</button>
+                <div class="metric">
+                    <div class="metric-head">
+                        <div class="k">Edges</div>
+                        <button type="button" class="info-btn" title="What are edges?" onclick="showEdgesInfo()">i</button>
                     </div>
-                    <div class=\"v\">{{ result.edges }}</div>
+                    <div class="v">{{ result.edges }}</div>
                 </div>
-                <div class=\"metric\"><div class=\"k\">Build Score</div><div class=\"v score-{{ result.score_level }}\">{{ result.score }}</div></div>
-                <div class=\"metric\">
-                    <div class=\"metric-head\">
-                        <div class=\"k\">Grade</div>
-                        <button type=\"button\" class=\"info-btn\" title=\"How grade is calculated\" onclick=\"showGradeInfo()\">i</button>
+                <div class="metric"><div class="k">Build Score</div><div class="v score-{{ result.score_level }}">{{ result.score }}</div></div>
+                <div class="metric">
+                    <div class="metric-head">
+                        <div class="k">Grade</div>
+                        <button type="button" class="info-btn" title="How grade is calculated" onclick="showGradeInfo()">i</button>
                     </div>
-                    <div class=\"v score-{{ result.score_level }}\">{{ result.grade_short }}</div>
+                    <div class="v score-{{ result.score_level }}">{{ result.grade_short }}</div>
                 </div>
             </div>
-            <div class=\"info-note\">
+            <div class="info-note">
                 <strong>Info:</strong> <strong>Nodes</strong> are components found in analysis (binary, libraries, object files). <strong>Edges</strong> are dependency links between them (for example, binary → library or object → object symbol references).
             </div>
             <table>
@@ -855,9 +915,9 @@ PAGE = """
             </div>
         </div>
 
-        <div class=\"card\">
+        <div class="card">
             <div id="detailedHead" class="card-head collapsible-head">
-                <h3 class=\"section-title\">Detailed Summary for {{ result.binary_name }}</h3>
+                <h3 class="section-title">Detailed Summary for {{ result.binary_name }}</h3>
                 <div class="head-actions">
                     <form method="post" action="/download-detailed-csv">
                         <input type="hidden" name="preset" value="{{ form.preset }}" />
@@ -954,6 +1014,34 @@ PAGE = """
             'Use it to identify used vs unused objects/libraries and improve build efficiency.'
         ];
         window.alert(summary.join('\\n'));
+    }
+
+    function openFilePicker(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.click();
+        }
+    }
+
+    function bindUploadHint(inputId, hintId, emptyText) {
+        const input = document.getElementById(inputId);
+        const hint = document.getElementById(hintId);
+        if (!input || !hint) return;
+
+        const render = () => {
+            if (!input.files || input.files.length === 0) {
+                hint.textContent = emptyText;
+                return;
+            }
+            if (input.files.length === 1) {
+                hint.textContent = `Selected: ${input.files[0].name}`;
+                return;
+            }
+            hint.textContent = `Selected ${input.files.length} files`;
+        };
+
+        input.addEventListener('change', render);
+        render();
     }
 
     function setTheme(theme) {
@@ -1132,6 +1220,10 @@ PAGE = """
                 applyPresetToForm(event.target.value);
             });
         }
+
+        bindUploadHint('binaryFile', 'binaryUploadHint', 'No upload selected.');
+        bindUploadHint('mapFile', 'mapUploadHint', 'No upload selected.');
+        bindUploadHint('libFiles', 'libUploadHint', 'No uploads selected.');
     });
 </script>
 </html>
