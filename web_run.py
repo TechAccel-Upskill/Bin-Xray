@@ -8,6 +8,7 @@ import csv
 import io
 
 from flask import Flask, request, render_template_string
+import shutil
 
 import sys
 
@@ -79,6 +80,20 @@ def _load_presets() -> Dict[str, Dict[str, Any]]:
         binary_path = _replace_workspace_var(preset.get("binary"))
         map_path = _replace_workspace_var(preset.get("map"))
         
+        # Debug: Print file existence and size
+        print(f"[DEBUG] Preset: {name}")
+        print(f"[DEBUG] Binary path: {binary_path}")
+        print(f"[DEBUG] Map path: {map_path}")
+        if binary_path:
+            print(f"[DEBUG] Binary exists: {Path(binary_path).exists()} size: {os.path.getsize(binary_path) if Path(binary_path).exists() else 'N/A'}")
+        if map_path:
+            print(f"[DEBUG] Map exists: {Path(map_path).exists()} size: {os.path.getsize(map_path) if Path(map_path).exists() else 'N/A'}")
+
+        # Debug: Check tool availability
+        for tool in ["nm", "readelf", "ar", "file"]:
+            tool_path = shutil.which(tool)
+            print(f"[DEBUG] Tool '{tool}': {tool_path if tool_path else 'NOT FOUND'}")
+
         # Only include preset if required files exist
         has_binary = binary_path and Path(binary_path).exists()
         has_map = map_path and Path(map_path).exists()
