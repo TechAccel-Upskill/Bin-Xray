@@ -703,7 +703,7 @@ class DependencyGraphBuilder:
         # Add library nodes and detect unused ones
         if libraries:
             self._add_library_nodes(libraries, binary_info, show_symbols)
-            self._detect_unused_nodes(binary_info, libraries)
+            self._detect_unused_nodes(binary_info, libraries, map_info)
         
         return self.graph
     
@@ -859,7 +859,7 @@ class DependencyGraphBuilder:
                                                   symbol=bin_undef.name)
                                 break
     
-    def _detect_unused_nodes(self, binary_info, libraries):
+    def _detect_unused_nodes(self, binary_info, libraries, map_info: Optional[MapFileInfo] = None):
         """Detect unused objects and libraries."""
         # Step 1: Identify nodes with dependencies (have edges)
         nodes_with_edges = set()
@@ -896,8 +896,36 @@ class DependencyGraphBuilder:
         # Step 4: Mark objects as used if:
         # - They are in a used library, OR
         # - They have symbol dependencies (symbol_ref edges), OR
-        # - They are directly referenced by binary
+        # - They are directly referenced by binary, OR
+        # - They appear in map section placement (fallback when symbol tools differ across envs)
         used_objects = set()
+
+        # Build a normalized set of object names seen in the map file.
+        # This provides a stable fallback signal on platforms where symbol extraction differs.
+        map_objects = set()
+        if map_info:
+            for section_objects in map_info.section_map.values():
+                for obj in section_objects:
+                    if not obj:
+                        continue
+                    map_objects.add(str(obj).strip())
+                    map_objects.add(os.path.basename(str(obj).strip()))
+
+        def _node_matches_map_object(node_name: str) -> bool:
+            # Supports formats like "libfoo.a:bar.o", "libfoo.a(bar.o)", and plain "bar.o"
+            candidates = {node_name, os.path.basename(node_name)}
+            if ':' in node_name:
+                _, rhs = node_name.split(':', 1)
+                candidates.add(rhs.strip())
+                candidates.add(os.path.basename(rhs.strip()))
+            if '(' in node_name and node_name.endswith(')'):
+                try:
+                    rhs = node_name.rsplit('(', 1)[1].rstrip(')').strip()
+                    candidates.add(rhs)
+                    candidates.add(os.path.basename(rhs))
+                except Exception:
+                    pass
+            return any(item in map_objects for item in candidates if item)
         
         for node in self.graph.nodes():
             node_type = self.node_types.get(node, '')
@@ -929,6 +957,12 @@ class DependencyGraphBuilder:
                     if self.graph.has_edge(binary_info.name, node):
                         is_used = True
                     elif self.graph.has_edge(node, binary_info.name):
+                        is_used = True
+
+                # Fallback: object appears in map placement records.
+                # This avoids false "all unused" outcomes when symbol tools are missing/limited.
+                if not is_used and map_objects:
+                    if _node_matches_map_object(node):
                         is_used = True
                 
                 if is_used:

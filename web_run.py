@@ -6,6 +6,7 @@ import socket
 import json
 import csv
 import io
+from collections import Counter
 
 from flask import Flask, request, render_template_string
 import shutil
@@ -1123,11 +1124,14 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("Please provide at least a binary or map file path.")
 
     binary_info = None
+    parser_tools: Dict[str, str] = {}
     if binary_path:
         binary_file = Path(binary_path)
         if not binary_file.exists():
             raise ValueError(f"Binary not found: {binary_path}")
-        binary_info = BinaryParser(sdk_tools).parse_binary(str(binary_file))
+        parser = BinaryParser(sdk_tools)
+        parser_tools = dict(parser.tools)
+        binary_info = parser.parse_binary(str(binary_file))
         binary_display_name = binary_info.name or binary_file.name
 
     map_info = None
@@ -1288,6 +1292,55 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
 
     unused_objects_formatted = [_format_object_name(item, include_source=True) for item in unused["unused_objects"]]
 
+    edge_type_counts = Counter()
+    for _u, _v, edge_data in graph.edges(data=True):
+        edge_type_counts[str(edge_data.get("type", "unknown"))] += 1
+
+    map_object_candidates = 0
+    map_unique_object_candidates = 0
+    map_symbol_xref_entries = 0
+    if map_info:
+        object_names = []
+        for section_objects in map_info.section_map.values():
+            for obj in section_objects:
+                if obj:
+                    object_names.append(str(obj).strip())
+        map_object_candidates = len(object_names)
+        map_unique_object_candidates = len(set(object_names))
+        map_symbol_xref_entries = len(map_info.symbol_xref)
+
+    library_object_total = 0
+    for lib_objects in libraries.values():
+        library_object_total += len(lib_objects)
+
+    diagnostics = {
+        "parser_tools": parser_tools,
+        "binary": {
+            "defined_symbols": len(binary_info.defined_symbols) if binary_info else 0,
+            "undefined_symbols": len(binary_info.undefined_symbols) if binary_info else 0,
+            "sections": len(binary_info.sections) if binary_info else 0,
+            "format": binary_info.format if binary_info else "",
+            "architecture": binary_info.architecture if binary_info else "",
+        },
+        "map": {
+            "sections": len(map_info.section_map) if map_info else 0,
+            "symbol_xref_entries": map_symbol_xref_entries,
+            "object_entries": map_object_candidates,
+            "unique_objects": map_unique_object_candidates,
+        },
+        "libraries": {
+            "count": len(libraries),
+            "objects_total": library_object_total,
+        },
+        "graph": {
+            "nodes": graph.number_of_nodes(),
+            "edges": graph.number_of_edges(),
+            "edge_types": dict(edge_type_counts),
+            "unused_objects": len(builder.unused_objects),
+            "unused_libraries": len(builder.unused_libraries),
+        },
+    }
+
     return {
         "binary_name": binary_display_name,
         "nodes": graph.number_of_nodes(),
@@ -1310,6 +1363,7 @@ def _analyze(form: Dict[str, Any]) -> Dict[str, Any]:
                 "unused": unused_objects_formatted,
             },
         ],
+        "diagnostics": diagnostics,
     }
 
 
@@ -1450,6 +1504,12 @@ def create_app() -> Flask:
             presets = _load_presets()
             form = _apply_selected_preset(form, presets)
             result = _analyze(form)
+            diagnostics = result.get("diagnostics", {}) if isinstance(result, dict) else {}
+            if diagnostics:
+                elf_debug_lines.append("Diagnostics:")
+                for key, value in diagnostics.items():
+                    elf_debug_lines.append(f"{key}: {json.dumps(value, default=str)}")
+            elf_debug_info = "\n".join(elf_debug_lines)
             is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
             return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
         except Exception as exc:
