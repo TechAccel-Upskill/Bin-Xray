@@ -1355,7 +1355,60 @@ def create_app() -> Flask:
     @app.post("/analyze")
     def analyze():
         form = _get_form_data()
+        import sys
+        import platform
+        import hashlib
+        import pkg_resources
         elf_debug_lines = []
+        # Python and platform info
+        elf_debug_lines.append(f"Python: {sys.version}")
+        elf_debug_lines.append(f"Platform: {platform.platform()}")
+        # Environment variables (filtered for brevity)
+        env_vars = [k for k in os.environ.keys() if k.upper() in ("PATH", "PYTHONPATH", "HOME", "USER", "SHELL") or k.startswith("BINXRAY")]
+        for k in env_vars:
+            elf_debug_lines.append(f"ENV {k}: {os.environ.get(k)}")
+        # Working directory
+        elf_debug_lines.append(f"CWD: {os.getcwd()}")
+        # Directory listing for libdir
+        libdir = form.get("libdir", "")
+        if libdir and Path(libdir).is_dir():
+            try:
+                files = os.listdir(libdir)
+                elf_debug_lines.append(f"Libdir files: {files}")
+            except Exception as e:
+                elf_debug_lines.append(f"Libdir list error: {e}")
+        # File checksums
+        def sha256sum(path):
+            try:
+                with open(path, 'rb') as f:
+                    h = hashlib.sha256()
+                    while True:
+                        chunk = f.read(8192)
+                        if not chunk:
+                            break
+                        h.update(chunk)
+                    return h.hexdigest()
+            except Exception as e:
+                return f"error: {e}"
+        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", ""))]:
+            if path and Path(path).is_file():
+                elf_debug_lines.append(f"{label} SHA256: {sha256sum(path)}")
+        # Libdir library checksums
+        if libdir and Path(libdir).is_dir():
+            for f in Path(libdir).iterdir():
+                if f.suffix in {".a", ".so", ".dll"}:
+                    elf_debug_lines.append(f"Lib: {f.name} SHA256: {sha256sum(str(f))}")
+        # Dependency versions
+        try:
+            pkgs = ["flask", "jinja2", "werkzeug"]
+            for pkg in pkgs:
+                try:
+                    v = pkg_resources.get_distribution(pkg).version
+                    elf_debug_lines.append(f"{pkg} version: {v}")
+                except Exception:
+                    pass
+        except Exception:
+            pass
         # Always generate ELF debug info for binary, map, libdir
         for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", "")), ("Libdir", form.get("libdir", ""))]:
             if path:
@@ -1392,6 +1445,7 @@ def create_app() -> Flask:
                 if not exists or size == 0 or not readable or perm_issue:
                     elf_debug_lines.append(f"[ERROR] {label} file missing, empty, unreadable, or permission denied!")
         elf_debug_info = "\n".join(elf_debug_lines)
+        import traceback
         try:
             presets = _load_presets()
             form = _apply_selected_preset(form, presets)
@@ -1399,9 +1453,14 @@ def create_app() -> Flask:
             is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
             return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
         except Exception as exc:
+            tb = traceback.format_exc()
+            elf_debug_lines.append(f"Exception: {exc}")
+            elf_debug_lines.append(f"Traceback:\n{tb}")
             presets = _load_presets()
             is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
-            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
+            # Optionally, print to stderr for logs
+            print(f"Exception: {exc}\nTraceback:\n{tb}", file=sys.stderr)
+            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info="\n".join(elf_debug_lines))
 
     @app.post("/download-detailed-csv")
     def download_detailed_csv():
