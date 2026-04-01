@@ -1035,13 +1035,21 @@ class DependencyGraphBuilder:
         - 0-49 = Poor: Many unused components wasting build time
         """
         total_objects = len(self.unused_objects)
-        total_libraries = len(self.unused_libraries)
+
+        # Libraries for efficiency scoring should represent build inputs
+        # (archives/shared libs provided to analysis), not runtime DT_NEEDED deps.
+        build_library_nodes = [
+            n for n in self.graph.nodes()
+            if self.node_types.get(n) in ['library', 'static_lib', 'shared_lib']
+            and bool(self.node_details.get(n, {}).get('path'))
+        ]
+        build_library_set = set(build_library_nodes)
+        total_libraries = len([n for n in self.unused_libraries if n in build_library_set])
         
         # Count total built components
         total_built_objects = len([n for n in self.graph.nodes() 
                                    if self.node_types.get(n) == 'object'])
-        total_built_libraries = len([n for n in self.graph.nodes() 
-                                     if self.node_types.get(n) in ['library', 'static_lib', 'shared_lib']])
+        total_built_libraries = len(build_library_nodes)
         
         if total_built_objects == 0 and total_built_libraries == 0:
             return 100, "N/A", {}
