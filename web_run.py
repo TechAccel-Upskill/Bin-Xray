@@ -655,6 +655,12 @@ PAGE = """
   </style>
 </head>
 <body>
+            {% if elf_debug_info %}
+                <div class="card debug-section">
+                    <h3>ELF Debug Info</h3>
+                    <pre class="debug">{{ elf_debug_info }}</pre>
+                </div>
+            {% endif %}
     <div class=\"wrap\">
         <div class=\"hero\">
             <div class=\"hero-head\">
@@ -927,19 +933,12 @@ PAGE = """
         const savedTheme = localStorage.getItem('binxray-theme');
         if (savedTheme === 'dark' || savedTheme === 'light') {
             setTheme(savedTheme);
-            return;
-        }
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setTheme(prefersDark ? 'dark' : 'light');
-    }
+            return app
 
-    function applyAboutMeFold() {
-        const topLayout = document.querySelector('.top-layout');
-        if (!topLayout) return;
-
-        const foldRequested = localStorage.getItem('binxray-fold-about') === '1';
-        const shouldFold = Boolean(foldRequested && hasResult);
-        topLayout.classList.toggle('fold-about', shouldFold);
+        if __name__ == "__main__":
+            app = create_app()
+            port = _resolve_port(8000)
+            app.run(host="0.0.0.0", port=port)
 
         const aboutToggleBtn = document.getElementById('aboutToggleBtn');
         updateToggleButtonState(aboutToggleBtn, shouldFold);
@@ -1356,17 +1355,53 @@ def create_app() -> Flask:
     @app.post("/analyze")
     def analyze():
         form = _get_form_data()
+        elf_debug_lines = []
+        # Always generate ELF debug info for binary, map, libdir
+        for label, path in [("Binary", form.get("binary", "")), ("Map", form.get("map", "")), ("Libdir", form.get("libdir", ""))]:
+            if path:
+                p = Path(path)
+                exists = p.exists()
+                size = os.path.getsize(path) if exists else 0
+                readable = False
+                perm_issue = False
+                if label == "Libdir":
+                    # For directories, check is_dir and access
+                    if exists and p.is_dir():
+                        # Directory is readable if we can list it
+                        try:
+                            os.listdir(path)
+                            readable = os.access(path, os.R_OK | os.X_OK)
+                        except PermissionError:
+                            perm_issue = True
+                            readable = False
+                        except Exception:
+                            readable = False
+                else:
+                    # For files, try to open
+                    try:
+                        if exists and size > 0:
+                            with open(path, 'rb') as f:
+                                f.read(1)
+                            readable = True
+                    except PermissionError:
+                        perm_issue = True
+                        readable = False
+                    except Exception:
+                        readable = False
+                elf_debug_lines.append(f"{label}: {path} | Exists: {exists} | Size: {size} | Readable: {readable} | Permission Issue: {perm_issue}")
+                if not exists or size == 0 or not readable or perm_issue:
+                    elf_debug_lines.append(f"[ERROR] {label} file missing, empty, unreadable, or permission denied!")
+        elf_debug_info = "\n".join(elf_debug_lines)
         try:
             presets = _load_presets()
             form = _apply_selected_preset(form, presets)
-
             result = _analyze(form)
             is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
-            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
+            return render_template_string(PAGE, form=form, result=result, error=None, preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
         except Exception as exc:
             presets = _load_presets()
             is_demo = _is_vercel_deployment() or not (ROOT / "test_binaries").exists()
-            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo)
+            return render_template_string(PAGE, form=form, result=None, error=str(exc), preset_options=sorted(presets.keys()), preset_data=presets, is_demo=is_demo, elf_debug_info=elf_debug_info)
 
     @app.post("/download-detailed-csv")
     def download_detailed_csv():
@@ -1398,7 +1433,6 @@ def create_app() -> Flask:
             return app.response_class(str(exc), status=400, mimetype="text/plain")
 
     return app
-
 
 if __name__ == "__main__":
     app = create_app()
