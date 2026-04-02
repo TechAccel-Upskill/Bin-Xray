@@ -30,7 +30,7 @@ Bin-Xray is a Python GUI tool that analyzes embedded binaries and linker map fil
 
 ### Demo Link
 
-- Demo link: https://your-vercel-app.vercel.app
+- Demo link: [https://your-vercel-app.vercel.app](https://github.com/TechAccel-Upskill/Bin-Xray/deployments/Production)
 
 The repository now includes:
 - `api/index.py` (WSGI handler for Flask app)
